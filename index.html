@@ -143,23 +143,27 @@ p{margin:0}
 .site-header .btn{padding:11px 20px;font-size:14.5px}
 
 /* ---------- Hero ---------- */
-.hero{padding-block:56px 40px;overflow-x:clip}
-.hero .wrap{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,.85fr);gap:30px;align-items:center}
-.hero h1{font-size:clamp(34px,5.6vw,68px);font-weight:800;margin:16px 0 20px}
+.hero{overflow-x:clip;position:relative;padding-top:clamp(64px,7vw,96px)}
+.hero-copy{position:relative;z-index:3;text-align:center;display:flex;flex-direction:column;align-items:center;margin-top:-6px}
+.hero h1{font-size:clamp(30px,3.9vw,50px);font-weight:800;margin:0 auto 12px;max-width:20ch}
 .hero h1 .hl{background:linear-gradient(90deg,#8fd0ff,var(--cyan) 40%,var(--blue));-webkit-background-clip:text;background-clip:text;color:transparent}
-.hero .lead{font-size:clamp(17px,1.6vw,20px);color:var(--muted);max-width:56ch}
+.hero .lead{font-size:clamp(16px,1.5vw,19px);color:var(--muted);max-width:58ch}
 .hero .lead b{color:var(--fg)}
-.hero-cta{display:flex;flex-wrap:wrap;gap:12px;margin-top:30px}
-.hero-facts{display:flex;flex-wrap:wrap;gap:10px 28px;margin-top:34px;padding-top:22px;border-top:1px solid var(--line);max-width:620px}
-.hero-facts div{display:grid}
-.hero-facts b{font:800 22px/1.1 var(--font-display)}
+.hero-cta{display:flex;flex-wrap:wrap;gap:12px;margin-top:20px;justify-content:center}
+.btn-lg{padding:18px 34px;font-size:17px}
+.hero .plan{text-align:left;margin:0 auto 30px}
+.stage{position:relative;width:min(100%,900px,calc((100svh - 470px) * 2.07));min-width:min(100%,560px);margin:0 auto}
+.stage::before{content:"";position:absolute;inset:10% 6% 0;background:radial-gradient(closest-side,rgba(46,134,255,.38),transparent 75%);filter:blur(20px);z-index:0}
+.kids{position:relative;z-index:1;width:100%;height:auto;-webkit-mask-image:linear-gradient(90deg,transparent,#000 9%,#000 91%,transparent);mask-image:linear-gradient(90deg,transparent,#000 9%,#000 91%,transparent)}
+.hero-mascot{position:absolute;z-index:2;left:6%;bottom:-7%;height:122%;aspect-ratio:512/1071}
+.hero-mascot .mascot{height:100%;width:auto}
+.hero-mascot .bubble{left:88%;top:6%;width:220px}
+.hero-mascot .bubble::after{left:-6px;top:22px}
+.facts-band{position:relative;z-index:3;padding-block:44px 40px}
+.hero-facts{display:flex;flex-wrap:wrap;justify-content:center;gap:14px 48px}
+.hero-facts div{display:grid;text-align:center}
+.hero-facts b{font:800 24px/1.1 var(--font-display)}
 .hero-facts span{font-size:13px;color:var(--muted)}
-.hero-mascot{position:relative;width:min(380px,100%);justify-self:center;margin-top:60px}
-.hero-mascot .bubble{right:-16%;top:-9%;max-width:210px}
-.hero-mascot .bubble::after{left:22px;bottom:-7px}
-.orbit{position:absolute;inset:14% -10% 6% -10%;border:1px dashed rgba(95,224,255,.25);border-radius:50%;z-index:-1;animation:spin 40s linear infinite}
-.orbit::before,.orbit::after{content:"";position:absolute;width:10px;height:10px;border-radius:50%;background:var(--cyan);box-shadow:0 0 14px var(--cyan)}
-.orbit::before{top:8%;left:16%}.orbit::after{bottom:10%;right:12%;background:var(--blue)}
 @keyframes spin{to{transform:rotate(360deg)}}
 
 /* Personal card (after quiz) */
@@ -177,6 +181,21 @@ section{scroll-margin-top:80px}
 .sec-head{max-width:760px;margin-bottom:40px}
 .sec-head h2{font-size:clamp(28px,3.6vw,46px);margin:12px 0 14px}
 .sec-head p{color:var(--muted);font-size:18px}
+
+/* Alternating folds: blue / white */
+.sec.blue{background:radial-gradient(900px 500px at 90% 0%,rgba(46,134,255,.22),transparent 60%),linear-gradient(180deg,#0b1d47,#081536);--surface:#102552;--surface-2:#16306a;--bg-2:#0c1d45;--line:rgba(140,185,255,.18);--line-strong:rgba(140,185,255,.34)}
+.sec.light{background:linear-gradient(rgba(30,90,200,.06) 1px,transparent 1px) 0 0/48px 48px,linear-gradient(90deg,rgba(30,90,200,.06) 1px,transparent 1px) 0 0/48px 48px,#fff;color:var(--fg);
+  --fg:#0b1736;--muted:#4b5b7e;--dim:#7886a5;--cyan:#0d66de;--blue:#1d6fe8;--surface:#f3f7ff;--surface-2:#e5eeff;--bg-2:#eaf1ff;--line:rgba(29,94,210,.13);--line-strong:rgba(29,94,210,.26);--glow:rgba(29,111,232,.35);color-scheme:light}
+.sec.light .opp-card{background:linear-gradient(180deg,#fff,var(--bg-2));box-shadow:0 18px 40px -28px rgba(13,60,150,.35)}
+.sec.light .quote-band{background:linear-gradient(90deg,#1d6fe8,#0f4fc0);border:0;color:#fff}
+.sec.light .quote-band p em{color:#bfe6ff}
+.sec.light .quote-band .btn-primary{background:#fff;color:#0f4fc0;box-shadow:none}
+.sec.light .steps li::before{background:#e5eeff;color:#1d6fe8}
+.sec.light .unit{background:#fff;box-shadow:0 30px 60px -40px rgba(13,60,150,.45)}
+.sec.light .state-note{background:#eafaf2;border-color:#9fe3c2;color:#0f5c3b}
+.sec.light .final{color:#fff;--fg:#fff;--muted:#c4d4f2}
+.sec.light .final h2{color:#fff}
+.sec.light .photo{box-shadow:0 30px 60px -30px rgba(13,60,150,.45)}
 
 /* Opportunity */
 .opp{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
@@ -246,7 +265,7 @@ section{scroll-margin-top:80px}
 .final h2{font-size:clamp(28px,3.8vw,48px);margin-bottom:14px}
 .final p{color:#c4d4f2;font-size:18px;max-width:52ch;margin-bottom:26px}
 .final .mascot{width:200px;justify-self:center}
-footer{padding-block:40px 50px;color:var(--dim);font-size:14px;border-top:1px solid var(--line);margin-top:80px}
+footer{padding-block:40px 50px;color:var(--dim);font-size:14px;border-top:1px solid var(--line);background:var(--bg)}
 footer .wrap{display:flex;flex-wrap:wrap;gap:16px 30px;align-items:center;justify-content:space-between}
 footer .brand{display:flex;align-items:center;gap:10px;color:var(--fg)}
 footer img{width:32px;height:32px}
@@ -259,10 +278,10 @@ footer img{width:32px;height:32px}
 @media (max-width:960px){
   .site-header nav{display:none}
   .site-header .btn{margin-left:auto;padding:10px 14px;font-size:13.5px;white-space:nowrap}
-  .hero .wrap{grid-template-columns:1fr}
-  .hero-mascot{width:min(260px,66%);order:-1;margin-top:76px}
-  .hero-mascot .bubble{top:-64px;right:-14%}
-  .hero{padding-top:24px}
+  .hero{padding-top:130px}
+  .hero-mascot{left:1%;height:150%;bottom:-10%}
+  .hero-mascot .bubble{left:62%;top:-16%;width:170px;font-size:13px;padding:10px 12px}
+  .hero-mascot .bubble::after{left:18px;top:auto;bottom:-7px}
   .opp{grid-template-columns:1fr}
   .method,.unit{grid-template-columns:1fr}
   .parents{grid-template-columns:1fr 1fr}
@@ -276,13 +295,12 @@ footer img{width:32px;height:32px}
 @media (max-width:560px){
   .parents{grid-template-columns:1fr}
   .form-grid{grid-template-columns:1fr}
-  .hero-mascot .bubble{right:-10%;font-size:13px;max-width:170px}
   .sec{padding-block:56px}
-  .hero-facts{gap:14px 22px}
+  .hero-facts{display:grid;grid-template-columns:1fr 1fr;gap:18px 12px}
   .course-grid{grid-template-columns:1fr}
 }
 @media (prefers-reduced-motion:reduce){
-  .mascot-float,.m-shadow,.orbit{animation:none}
+  .mascot-float,.m-shadow{animation:none}
   .mascot.waving .m-arm{animation:none}
   html{scroll-behavior:auto}
   .step{animation:none}
@@ -410,31 +428,31 @@ footer img{width:32px;height:32px}
 
 <main>
   <section class="hero">
-    <div class="wrap">
-      <div>
-        <span class="eyebrow">Tecnologia para crianças de 6 a 16 anos</span>
-        <h1>Seu filho pode sair da escola <span class="hl">criando apps, jogos e IA.</span></h1>
-        <p class="lead">Na Hall School a criança troca o tempo só consumindo tela por <b>aulas presenciais e práticas</b> de robótica, programação, inteligência artificial, design e criação de jogos. Ela termina a escola com <b>formação, portfólio e habilidades que o mercado já paga</b>.</p>
-        <div id="plan-slot"></div>
-        <div class="hero-cta">
-          <a class="btn btn-primary" href="#cursos">Ver os cursos</a>
-          <button class="btn btn-ghost" type="button" data-open-quiz>Refazer o quiz</button>
-        </div>
-        <div class="hero-facts">
-          <div><b>6–16</b><span>anos, turmas por idade</span></div>
-          <div><b>7</b><span>trilhas de tecnologia</span></div>
-          <div><b>100%</b><span>aulas presenciais e práticas</span></div>
-          <div><b>Certificado</b><span>ao concluir a formação</span></div>
-        </div>
-      </div>
+    <div class="stage">
+      <img class="kids" src="assets/criancas.webp" alt="Crianças e adolescentes sorrindo juntos" width="1392" height="672" fetchpriority="high">
       <div class="hero-mascot" data-mascot>
-        <div class="orbit" aria-hidden="true"></div>
-        <div class="bubble" id="hero-bubble">Oi! Eu sou o Hall. Vem criar o futuro comigo!</div>
+        <div class="bubble" id="hero-bubble">Oi! Eu sou o Hall. Vem criar o futuro com a gente!</div>
+      </div>
+    </div>
+    <div class="wrap hero-copy">
+      <h1>Seu filho pode sair da escola <span class="hl">criando apps, jogos e IA.</span></h1>
+      <p class="lead">Aulas <b>presenciais e práticas</b> de robótica, programação, inteligência artificial, design e criação de jogos para crianças de <b>6 a 16 anos</b>.</p>
+      <div class="hero-cta">
+        <a class="btn btn-primary btn-lg" href="#cursos">Quero conhecer os cursos</a>
+      </div>
+    </div>
+    <div class="facts-band">
+      <div class="wrap"><div id="plan-slot"></div></div>
+      <div class="wrap hero-facts">
+        <div><b>6–16</b><span>anos, turmas por idade</span></div>
+        <div><b>7</b><span>trilhas de tecnologia</span></div>
+        <div><b>100%</b><span>aulas presenciais e práticas</span></div>
+        <div><b>Certificado</b><span>ao concluir a formação</span></div>
       </div>
     </div>
   </section>
 
-  <section class="sec" id="oportunidade">
+  <section class="sec light" id="oportunidade">
     <div class="wrap">
       <div class="sec-head">
         <span class="eyebrow">Por que agora</span>
@@ -453,7 +471,7 @@ footer img{width:32px;height:32px}
     </div>
   </section>
 
-  <section class="sec" id="cursos">
+  <section class="sec blue" id="cursos">
     <div class="wrap">
       <div class="sec-head">
         <span class="eyebrow">Cursos</span>
@@ -465,9 +483,9 @@ footer img{width:32px;height:32px}
     </div>
   </section>
 
-  <section class="sec" id="metodo">
+  <section class="sec light" id="metodo">
     <div class="wrap method">
-      <div class="photo"><img src="assets/lab-kids.webp" alt="Crianças programando robôs no laboratório da Hall School" width="1316" height="986" loading="lazy"></div>
+      <div class="photo"><img src="assets/lab-kids.webp" alt="Crianças programando robôs no laboratório da Hall School" width="1316" height="986" loading="eager"></div>
       <div>
         <div class="sec-head" style="margin-bottom:18px">
           <span class="eyebrow">Como funciona</span>
@@ -483,7 +501,7 @@ footer img{width:32px;height:32px}
     </div>
   </section>
 
-  <section class="sec">
+  <section class="sec blue">
     <div class="wrap">
       <div class="sec-head">
         <span class="eyebrow">Para os pais</span>
@@ -498,10 +516,10 @@ footer img{width:32px;height:32px}
     </div>
   </section>
 
-  <section class="sec" id="contato">
+  <section class="sec light" id="contato">
     <div class="wrap">
       <div class="unit">
-        <div class="photo"><img src="assets/equipe.webp" alt="Equipe da Hall School no laboratório" width="1316" height="986" loading="lazy"></div>
+        <div class="photo"><img src="assets/equipe.webp" alt="Equipe da Hall School no laboratório" width="1316" height="986" loading="eager"></div>
         <div class="unit-info">
           <span class="eyebrow">Unidade</span>
           <h3>Santo Amaro, São Paulo</h3>
@@ -514,7 +532,7 @@ footer img{width:32px;height:32px}
     </div>
   </section>
 
-  <section class="sec" id="faq">
+  <section class="sec blue" id="faq">
     <div class="wrap">
       <div class="sec-head"><span class="eyebrow">Dúvidas</span><h2>Perguntas frequentes</h2></div>
       <div class="faq">
@@ -528,7 +546,7 @@ footer img{width:32px;height:32px}
     </div>
   </section>
 
-  <section class="sec" style="padding-top:0">
+  <section class="sec light">
     <div class="wrap">
       <div class="final">
         <div>
@@ -558,6 +576,8 @@ footer img{width:32px;height:32px}
   const SUPABASE_URL = "https://hmnhcinkmfwtutkbxejb.supabase.co";
   const SUPABASE_KEY = "sb_publishable_U-B2cBm468M1lHoGZIzSnA_lmBsWe1S";
   const STORE = "hallschool_quiz_v1";
+  // Fora do domínio oficial (ex.: prévia), o lead não é enviado ao banco.
+  const LIVE = /(^|\.)hallschollv8\.ia\.br$|^localhost$|^127\./.test(location.hostname);
 
   const ICONS = {
     robotica:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="8" width="16" height="11" rx="3"/><path d="M12 8V4M9 13h.01M15 13h.01M9.5 16h5M2 12v3M22 12v3"/><circle cx="12" cy="3.5" r="1"/></svg>',
@@ -730,6 +750,7 @@ footer img{width:32px;height:32px}
       origem: origem()
     };
     try {
+      if (!LIVE) { await new Promise(r => setTimeout(r, 600)); throw { preview: true }; }
       const r = await fetch(`${SUPABASE_URL}/rest/v1/hallschool_leads`, {
         method: "POST",
         headers: { apikey: SUPABASE_KEY, "Content-Type": "application/json", Prefer: "return=minimal" },
@@ -741,6 +762,10 @@ footer img{width:32px;height:32px}
       if (window.gtag) try { gtag("event", "generate_lead"); } catch (_) {}
       closeQuiz(true, lead);
     } catch (e) {
+      if (e && e.preview) {
+        try { localStorage.setItem(STORE, JSON.stringify({ ...state, nome: lead.nome_responsavel, nome_crianca: lead.nome_crianca, at: Date.now() })); } catch (_) {}
+        closeQuiz(true, lead); toast("Prévia: o quiz funcionou, mas o lead só é salvo no site oficial."); return;
+      }
       console.error(e);
       err.textContent = "Não conseguimos enviar agora. Confira sua conexão e toque em enviar de novo.";
       next.textContent = "Tentar enviar de novo"; next.disabled = false;
