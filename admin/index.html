@@ -1,0 +1,222 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<title>Leads Hall School | Admin</title>
+<link rel="icon" href="../assets/favicon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@700&family=Manrope:wght@400;600;700;800&display=swap">
+<style>
+:root{--bg:#060a14;--surface:#0e1830;--surface-2:#13203d;--line:rgba(124,170,255,.14);--line-strong:rgba(124,170,255,.3);--fg:#eaf1ff;--muted:#97a6c6;--blue:#2e86ff;--cyan:#5fe0ff;--ok:#3ddc97;--warn:#ffc35c;--err:#ff6b7a;color-scheme:dark}
+*{box-sizing:border-box}[hidden]{display:none!important}
+body{margin:0;background:var(--bg);color:var(--fg);font:15px/1.5 "Manrope",system-ui,sans-serif}
+h1,h2{font-family:"Unbounded","Arial Black",sans-serif;margin:0;line-height:1.1}
+button,select,input{font:inherit;color:inherit}
+.wrap{max-width:1320px;margin:0 auto;padding:0 max(16px,env(safe-area-inset-right,0px)) 0 max(16px,env(safe-area-inset-left,0px))}
+header{border-bottom:1px solid var(--line);background:rgba(10,17,34,.8)}
+header .wrap{display:flex;align-items:center;gap:12px;height:64px}
+header img{width:34px;height:34px}
+header .who{margin-left:auto;display:flex;align-items:center;gap:12px;color:var(--muted);font-size:14px;min-width:0}
+header .who span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.btn{border:0;border-radius:999px;padding:11px 18px;font-weight:800;cursor:pointer;background:var(--blue);color:#fff;display:inline-flex;align-items:center;gap:10px;text-decoration:none}
+.btn.ghost{background:transparent;border:1px solid var(--line-strong);color:var(--fg)}
+.btn.google{background:#fff;color:#1f2937;padding:14px 22px;font-size:16px}
+.btn:focus-visible,select:focus-visible,input:focus-visible{outline:2px solid var(--cyan);outline-offset:2px}
+.center{min-height:calc(100vh - 64px);display:grid;place-items:center;padding:24px 16px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:20px;padding:34px;max-width:440px;width:100%;text-align:center}
+.card h1{font-size:24px;margin:14px 0 10px}
+.card p{color:var(--muted);margin:0 0 24px}
+.card img{width:64px;height:64px;margin:0 auto}
+.msg{margin-top:16px;color:var(--err);font-weight:700;font-size:14px}
+.kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin:24px 0}
+.kpi{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:16px 18px}
+.kpi b{display:block;font:700 28px/1.1 "Unbounded",sans-serif;font-variant-numeric:tabular-nums}
+.kpi span{color:var(--muted);font-size:13px}
+.filters{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:14px}
+.filters input,.filters select{background:var(--surface);border:1px solid var(--line-strong);border-radius:10px;padding:10px 12px;min-width:0}
+.filters input{flex:1 1 240px}
+.filters .btn{margin-left:auto}
+.table-box{overflow-x:auto;border:1px solid var(--line);border-radius:16px;background:var(--surface)}
+table{border-collapse:collapse;width:100%;min-width:1080px}
+th,td{text-align:left;padding:12px 14px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);background:var(--surface-2);position:sticky;top:0}
+td{font-size:14px}
+tr:last-child td{border-bottom:0}
+.muted{color:var(--muted);font-size:12.5px}
+.tag{display:inline-block;font-size:12px;font-weight:700;padding:3px 8px;border-radius:99px;background:rgba(46,134,255,.16);color:#bfe0ff;margin:0 4px 4px 0;white-space:nowrap}
+.wa{color:var(--ok);font-weight:800;text-decoration:none;white-space:nowrap}
+.wa:hover{text-decoration:underline}
+select.status{background:var(--surface-2);border:1px solid var(--line-strong);border-radius:8px;padding:6px 8px;font-weight:700}
+select.status[data-v="novo"]{color:var(--cyan)}
+select.status[data-v="em_contato"]{color:var(--warn)}
+select.status[data-v="matriculado"]{color:var(--ok)}
+select.status[data-v="sem_interesse"]{color:var(--muted)}
+.empty{padding:40px;text-align:center;color:var(--muted)}
+.foot{color:var(--muted);font-size:13px;margin:12px 0 40px}
+@media (max-width:760px){.kpis{grid-template-columns:repeat(2,minmax(0,1fr))}.filters .btn{margin-left:0}}
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap">
+    <img src="../assets/logo.png" alt="" width="34" height="34">
+    <h2 style="font-size:15px">Leads Hall School</h2>
+    <div class="who" id="who" hidden><span id="who-email"></span><button class="btn ghost" id="logout" type="button">Sair</button></div>
+  </div>
+</header>
+
+<div class="center" id="login-view">
+  <div class="card">
+    <img src="../assets/logo.png" alt="Hall School" width="64" height="64">
+    <h1>Área administrativa</h1>
+    <p>Entre com a conta Google autorizada para ver os leads do quiz.</p>
+    <button class="btn google" id="google" type="button">
+      <svg width="20" height="20" viewBox="0 0 48 48" aria-hidden="true"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.7 29.2 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.4-.4-3.5z"/><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.7 15.1 19 12 24 12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.2 35.1 26.7 36 24 36c-5.2 0-9.6-3.3-11.3-7.9l-6.5 5C9.5 39.6 16.2 44 24 44z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.2-2.2 4.2-4.1 5.6l6.2 5.2C37 39.2 44 34 44 24c0-1.3-.1-2.4-.4-3.5z"/></svg>
+      Entrar com Google
+    </button>
+    <div class="msg" id="login-msg" role="alert"></div>
+  </div>
+</div>
+
+<main class="wrap" id="app" hidden>
+  <div class="kpis">
+    <div class="kpi"><b id="k-total">0</b><span>leads no total</span></div>
+    <div class="kpi"><b id="k-hoje">0</b><span>hoje</span></div>
+    <div class="kpi"><b id="k-7d">0</b><span>últimos 7 dias</span></div>
+    <div class="kpi"><b id="k-novos">0</b><span>aguardando contato</span></div>
+  </div>
+  <div class="filters">
+    <input id="f-busca" type="search" placeholder="Buscar por nome, WhatsApp ou criança" aria-label="Buscar">
+    <select id="f-curso" aria-label="Curso"><option value="">Todos os cursos</option></select>
+    <select id="f-estado" aria-label="Estado"><option value="">Todos os estados</option></select>
+    <select id="f-status" aria-label="Status"><option value="">Todos os status</option></select>
+    <button class="btn ghost" id="reload" type="button">Atualizar</button>
+    <button class="btn" id="csv" type="button">Baixar CSV</button>
+  </div>
+  <div class="table-box">
+    <table>
+      <thead><tr><th>Data</th><th>Responsável</th><th>WhatsApp</th><th>Criança</th><th>Cursos</th><th>UF</th><th>Já faz curso</th><th>Origem</th><th>Status</th></tr></thead>
+      <tbody id="rows"><tr><td colspan="9" class="empty">Carregando…</td></tr></tbody>
+    </table>
+  </div>
+  <p class="foot" id="foot"></p>
+</main>
+
+<script src="../assets/vendor/supabase-2.45.4.js"></script>
+<script>
+(() => {
+  "use strict";
+  const sb = supabase.createClient("https://hmnhcinkmfwtutkbxejb.supabase.co", "sb_publishable_U-B2cBm468M1lHoGZIzSnA_lmBsWe1S");
+  const CURSOS = {robotica:"Robótica",programacao:"Programação",ia:"Inteligência Artificial",jogos:"Criação de Jogos",design:"Design Gráfico",empreendedorismo:"Empreendedorismo Digital",informatica:"Informática"};
+  const JA = {nao:"Não",tecnologia:"Sim, tecnologia",outro:"Sim, outro"};
+  const STATUS = {novo:"Novo",em_contato:"Em contato",matriculado:"Matriculado",sem_interesse:"Sem interesse"};
+  const $ = s => document.querySelector(s);
+  const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+  let leads = [];
+
+  Object.entries(CURSOS).forEach(([k,v]) => $("#f-curso").insertAdjacentHTML("beforeend", `<option value="${k}">${v}</option>`));
+  Object.entries(STATUS).forEach(([k,v]) => $("#f-status").insertAdjacentHTML("beforeend", `<option value="${k}">${v}</option>`));
+
+  $("#google").addEventListener("click", async () => {
+    $("#login-msg").textContent = "";
+    const { error } = await sb.auth.signInWithOAuth({ provider: "google", options: { redirectTo: location.origin + location.pathname } });
+    if (error) $("#login-msg").textContent = "Login com Google indisponível: " + error.message;
+  });
+  $("#logout").addEventListener("click", async () => { await sb.auth.signOut(); location.reload(); });
+
+  async function boot() {
+    const { data: { session } } = await sb.auth.getSession();
+    if (!session) { $("#login-view").hidden = false; $("#app").hidden = true; $("#who").hidden = true; return; }
+    $("#who").hidden = false; $("#who-email").textContent = session.user.email;
+    const { data: isAdmin, error } = await sb.rpc("is_hallschool_admin");
+    if (error || !isAdmin) {
+      $("#login-view").hidden = false; $("#app").hidden = true;
+      $("#login-msg").textContent = `A conta ${session.user.email} não tem acesso. Peça para um administrador liberar este e-mail.`;
+      return;
+    }
+    $("#login-view").hidden = true; $("#app").hidden = false;
+    load();
+  }
+
+  async function load() {
+    $("#rows").innerHTML = `<tr><td colspan="9" class="empty">Carregando…</td></tr>`;
+    const all = []; let from = 0;
+    while (true) {
+      const { data, error } = await sb.from("hallschool_leads").select("*").order("created_at", { ascending: false }).range(from, from + 999);
+      if (error) { $("#rows").innerHTML = `<tr><td colspan="9" class="empty">Erro ao carregar: ${esc(error.message)}</td></tr>`; return; }
+      all.push(...data); if (data.length < 1000) break; from += 1000;
+    }
+    leads = all;
+    const ufs = [...new Set(leads.map(l => l.estado))].sort();
+    const cur = $("#f-estado").value;
+    $("#f-estado").innerHTML = `<option value="">Todos os estados</option>` + ufs.map(u => `<option ${u===cur?"selected":""}>${esc(u)}</option>`).join("");
+    const now = new Date(), today = new Date(now.getFullYear(), now.getMonth(), now.getDate()), d7 = new Date(now - 7*864e5);
+    $("#k-total").textContent = leads.length;
+    $("#k-hoje").textContent = leads.filter(l => new Date(l.created_at) >= today).length;
+    $("#k-7d").textContent = leads.filter(l => new Date(l.created_at) >= d7).length;
+    $("#k-novos").textContent = leads.filter(l => l.status === "novo").length;
+    render();
+  }
+
+  function filtered() {
+    const q = $("#f-busca").value.trim().toLowerCase(), c = $("#f-curso").value, e = $("#f-estado").value, s = $("#f-status").value;
+    return leads.filter(l => (!c || (l.cursos||[]).includes(c)) && (!e || l.estado === e) && (!s || l.status === s) &&
+      (!q || [l.nome_responsavel, l.whatsapp, l.nome_crianca, l.email].some(v => (v||"").toLowerCase().includes(q))));
+  }
+  const fmtPhone = p => { const d = (p||"").replace(/\D/g,""); return d.length >= 10 ? `(${d.slice(0,2)}) ${d.slice(2,-4)}-${d.slice(-4)}` : p; };
+  const fmtDate = s => new Date(s).toLocaleString("pt-BR", { day:"2-digit", month:"2-digit", year:"2-digit", hour:"2-digit", minute:"2-digit" });
+
+  function render() {
+    const list = filtered();
+    $("#foot").textContent = `${list.length} de ${leads.length} leads`;
+    if (!list.length) { $("#rows").innerHTML = `<tr><td colspan="9" class="empty">${leads.length ? "Nenhum lead com esses filtros." : "Ainda não chegou nenhum lead. Eles aparecem aqui assim que alguém terminar o quiz."}</td></tr>`; return; }
+    $("#rows").innerHTML = list.map(l => {
+      const o = l.origem || {};
+      const src = [o.utm_source, o.utm_campaign].filter(Boolean).join(" / ") || (o.referrer ? new URL(o.referrer, location.href).hostname : "direto");
+      const first = (l.nome_responsavel||"").split(" ")[0];
+      const msg = encodeURIComponent(`Olá, ${first}! Aqui é da Hall School. Vi que você fez nosso quiz${l.nome_crianca ? " para o(a) " + l.nome_crianca : ""}. Posso te contar sobre as turmas?`);
+      return `<tr>
+        <td>${fmtDate(l.created_at)}</td>
+        <td><b>${esc(l.nome_responsavel)}</b>${l.email ? `<div class="muted">${esc(l.email)}</div>` : ""}</td>
+        <td><a class="wa" href="https://wa.me/55${esc(l.whatsapp)}?text=${msg}" target="_blank" rel="noopener">${esc(fmtPhone(l.whatsapp))}</a></td>
+        <td>${l.nome_crianca ? esc(l.nome_crianca) + ", " : ""}${esc(l.idade_crianca)} anos</td>
+        <td>${(l.cursos||[]).map(c => `<span class="tag">${esc(CURSOS[c] || c)}</span>`).join("")}</td>
+        <td>${esc(l.estado)}</td>
+        <td>${esc(JA[l.ja_faz_curso] || l.ja_faz_curso)}${l.curso_atual ? `<div class="muted">${esc(l.curso_atual)}</div>` : ""}</td>
+        <td class="muted">${esc(src)}</td>
+        <td><select class="status" data-id="${l.id}" data-v="${l.status}" aria-label="Status">${Object.entries(STATUS).map(([k,v]) => `<option value="${k}" ${k===l.status?"selected":""}>${v}</option>`).join("")}</select></td>
+      </tr>`;
+    }).join("");
+  }
+
+  $("#rows").addEventListener("change", async e => {
+    const sel = e.target.closest("select.status"); if (!sel) return;
+    const id = sel.dataset.id, v = sel.value, prev = sel.dataset.v;
+    sel.dataset.v = v; sel.disabled = true;
+    const { error } = await sb.from("hallschool_leads").update({ status: v }).eq("id", id);
+    sel.disabled = false;
+    if (error) { sel.value = prev; sel.dataset.v = prev; alert("Não foi possível salvar: " + error.message); return; }
+    const l = leads.find(x => x.id === id); if (l) l.status = v;
+    $("#k-novos").textContent = leads.filter(x => x.status === "novo").length;
+  });
+  ["#f-busca","#f-curso","#f-estado","#f-status"].forEach(s => $(s).addEventListener("input", render));
+  $("#reload").addEventListener("click", load);
+  $("#csv").addEventListener("click", () => {
+    const cols = ["created_at","nome_responsavel","whatsapp","email","nome_crianca","idade_crianca","cursos","estado","ja_faz_curso","curso_atual","status"];
+    const cell = v => `"${String(Array.isArray(v) ? v.map(c => CURSOS[c]||c).join(", ") : (v ?? "")).replace(/"/g,'""')}"`;
+    const csv = "﻿" + cols.join(";") + "\n" + filtered().map(l => cols.map(c => cell(l[c])).join(";")).join("\n");
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(new Blob([csv], { type: "text/csv;charset=utf-8" }));
+    a.download = `leads-hallschool-${new Date().toISOString().slice(0,10)}.csv`;
+    a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+  });
+
+  sb.auth.onAuthStateChange((evt) => { if (evt === "SIGNED_IN" || evt === "SIGNED_OUT") boot(); });
+  boot();
+})();
+</script>
+</body>
+</html>
