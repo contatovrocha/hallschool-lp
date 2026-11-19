@@ -1,0 +1,10 @@
+{
+  "name": "Hall School",
+  "short_name": "Hall School",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f6f7ff",
+  "theme_color": "#2f6fff",
+  "icons": [{ "src": "../assets/logo.png", "sizes": "219x219", "type": "image/png" }]
+}

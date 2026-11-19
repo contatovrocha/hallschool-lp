@@ -1,0 +1,693 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Hall School App</title>
+<meta name="description" content="App da Hall School: cursos, tarefas, certificados e acompanhamento da família.">
+<meta name="theme-color" content="#2f6fff">
+<link rel="icon" href="../assets/favicon.png">
+<link rel="apple-touch-icon" href="../assets/logo.png">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@600;700;800;900&family=Manrope:wght@500;600;700;800&display=swap">
+<style>
+:root{
+  --blue:#2f6fff; --blue-d:#2357d6; --purple:#8b5cf6; --green:#10b981; --orange:#f59e0b; --pink:#ff6b8b;
+  --ink:#141b3a; --muted:#5a6488; --dim:#8a93b4; --line:#e6eaf6; --soft:#f1f4ff; --card:#ffffff;
+  --bg1:#ebe6ff; --bg2:#dce9ff;
+  --font-d:"Unbounded","Arial Black",system-ui,sans-serif; --font-b:"Manrope",system-ui,-apple-system,"Segoe UI",sans-serif;
+  color-scheme:light;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+[hidden]{display:none!important}
+html,body{margin:0;height:100%}
+body{font:15px/1.5 var(--font-b);color:var(--ink);background:linear-gradient(135deg,#e2dcff,#d6e6ff);}
+button,input,select{font:inherit;color:inherit}
+button{cursor:pointer;border:0;background:none}
+img{max-width:100%;display:block}
+h1,h2,h3{font-family:var(--font-d);margin:0;line-height:1.1}
+:focus-visible{outline:2px solid var(--blue);outline-offset:2px;border-radius:10px}
+.shell{position:relative;max-width:440px;min-height:100dvh;margin:0 auto;background:#f6f7ff;overflow-x:hidden;box-shadow:0 0 60px -20px rgba(40,50,140,.35)}
+@media (min-width:520px){.shell{margin:24px auto;min-height:calc(100dvh - 48px);border-radius:40px;overflow:hidden}}
+.page{padding:max(16px,env(safe-area-inset-top,0px)) 18px calc(110px + env(safe-area-inset-bottom,0px));min-height:100dvh;animation:in .35s cubic-bezier(.2,.8,.2,1)}
+@media (min-width:520px){.page{min-height:calc(100dvh - 48px)}}
+@keyframes in{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;height:56px;border-radius:20px;background:linear-gradient(180deg,#4b8bff,var(--blue-d));color:#fff;font-weight:800;font-size:16.5px;box-shadow:0 12px 24px -10px rgba(37,99,235,.7),inset 0 -4px 0 rgba(0,0,0,.12);transition:transform .15s}
+.btn:active{transform:scale(.98)}
+.btn:disabled{opacity:.55}
+.btn.ghost{background:#fff;color:var(--blue);box-shadow:0 6px 18px -10px rgba(40,50,140,.4)}
+.link{color:var(--blue);font-weight:800}
+.field{display:flex;align-items:center;gap:10px;height:54px;border-radius:18px;background:var(--soft);padding:0 8px;border:2px solid transparent}
+.field:focus-within{border-color:var(--blue);background:#fff}
+.field i{flex:none;width:40px;height:40px;border-radius:14px;background:#dfe7ff;display:grid;place-items:center;color:var(--blue)}
+.field input,.field select{flex:1;min-width:0;border:0;background:transparent;outline:none;font-weight:700;font-size:15.5px;height:100%}
+.field input::placeholder{color:#8a93b4;font-weight:600}
+.card{background:var(--card);border-radius:24px;box-shadow:0 14px 30px -18px rgba(40,50,140,.35)}
+.pill{display:inline-flex;align-items:center;gap:6px;border-radius:999px;font-weight:800;font-size:13px;padding:7px 12px;white-space:nowrap}
+.prog{height:8px;border-radius:9px;background:#e6ebfb;overflow:hidden}
+.prog b{display:block;height:100%;border-radius:9px;background:linear-gradient(90deg,var(--blue),#5fd4ff);transition:width .6s}
+.row{display:flex;align-items:center;gap:12px}
+.between{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.sec-t{display:flex;align-items:center;justify-content:space-between;margin:22px 2px 10px}
+.sec-t h2{font-size:16px}
+.muted{color:var(--muted)}
+.small{font-size:12.5px}
+.err{color:#d93652;font-weight:700;font-size:13.5px;min-height:20px}
+.ok{color:#0f9e6e;font-weight:700;font-size:13.5px}
+/* nav */
+.nav{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(12px + env(safe-area-inset-bottom,0px));width:min(416px,calc(100% - 24px));height:70px;border-radius:26px;background:#fff;box-shadow:0 10px 30px -10px rgba(40,50,140,.35);display:flex;justify-content:space-around;align-items:center;z-index:20}
+.nav a{display:flex;flex-direction:column;align-items:center;gap:3px;font-size:10.5px;font-weight:800;color:#9aa3c2;text-decoration:none;padding:6px 4px;min-width:58px}
+.nav a.on{color:var(--blue)}
+.nav svg{width:22px;height:22px}
+/* login */
+.login{position:relative;min-height:100dvh;padding:max(18px,env(safe-area-inset-top,0px)) 18px 18px;background:linear-gradient(180deg,#e7e2ff,#d9e6ff);display:flex;flex-direction:column}
+@media (min-width:520px){.login{min-height:calc(100dvh - 48px)}}
+.cloud{position:absolute;background:#fff;border-radius:40px;opacity:.9}
+.login-top{text-align:center;margin-top:18px}
+.login-top h1{font-size:30px;font-weight:900;color:#2f3a8a}
+.toggle{display:flex;justify-content:center;gap:10px;margin-top:16px}
+.toggle button{display:flex;align-items:center;gap:8px;padding:6px 14px 6px 6px;border-radius:999px;background:#fff;color:var(--muted);font-weight:800;font-size:13.5px;box-shadow:0 6px 16px -10px rgba(40,50,140,.4);transition:background .2s,color .2s}
+.toggle button[aria-pressed="true"]{background:var(--blue);color:#fff}
+.toggle .face{width:34px;height:34px;border-radius:50%;overflow:hidden;background:#dfe7ff}
+.peek{position:relative;height:190px;display:flex;justify-content:center;align-items:flex-end;margin-top:6px;z-index:1}
+.peek img,.peek svg{height:205px;width:auto;margin-bottom:-24px}
+.login-card{position:relative;z-index:2;padding:22px 18px;border-radius:30px;display:flex;flex-direction:column;gap:12px}
+.social{display:flex;justify-content:center;gap:16px}
+.social button{width:52px;height:52px;border-radius:50%;background:var(--soft);display:grid;place-items:center;font:900 20px var(--font-d)}
+/* avatar */
+.stage{position:relative;height:300px;border-radius:30px;background:radial-gradient(circle at 50% 40%,#fff,#d8e4ff 70%);overflow:hidden;margin-top:12px}
+.stage .ped{position:absolute;left:50%;bottom:14px;transform:translateX(-50%);width:210px;height:44px;border-radius:50%;background:radial-gradient(closest-side,rgba(47,111,255,.38),transparent)}
+.stage .av{position:absolute;left:50%;bottom:22px;transform:translateX(-50%);height:270px;width:189px;animation:bob 3.4s ease-in-out infinite alternate}
+.stage .av svg{width:100%;height:100%;display:block}
+.peek svg{display:block}
+@keyframes bob{to{transform:translate(-50%,-8px)}}
+.tabs{display:flex;gap:8px;margin-top:14px;overflow-x:auto;padding-bottom:2px}
+.tabs button{padding:9px 15px;border-radius:999px;background:#fff;color:var(--muted);font-weight:800;font-size:13.5px}
+.tabs button[aria-selected="true"]{background:var(--blue);color:#fff}
+.lbl{font-size:11.5px;font-weight:800;color:var(--dim);letter-spacing:1.2px;margin:16px 2px 10px}
+.swatches{display:flex;flex-wrap:wrap;gap:14px;padding:0 4px}
+.sw{width:36px;height:36px;border-radius:50%;box-shadow:0 0 0 3px #fff,0 4px 10px rgba(0,0,0,.15)}
+.sw[aria-pressed="true"]{box-shadow:0 0 0 3px #fff,0 0 0 6px var(--blue)}
+.items{display:grid;grid-template-columns:repeat(auto-fill,minmax(76px,1fr));gap:8px}
+.item{height:78px;border-radius:18px;background:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;font-size:11.5px;font-weight:800;color:#55608a;border:2px solid transparent}
+.item[aria-pressed="true"]{border-color:var(--blue);background:#e8efff;color:var(--blue)}
+.item svg{width:24px;height:24px}
+/* home */
+.continue{position:relative;margin-top:16px;border-radius:28px;padding:18px;background:linear-gradient(135deg,#3b7bff,#6a5cff);color:#fff;overflow:hidden;min-height:176px}
+.continue img{position:absolute;right:-6px;bottom:-70px;height:250px;pointer-events:none}
+.continue .info{position:relative;max-width:62%}
+.cgrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.ccard{padding:12px 10px;text-align:center;display:flex;flex-direction:column;gap:6px;align-items:center}
+.ic{width:42px;height:42px;border-radius:14px;display:grid;place-items:center}
+.ic svg{width:22px;height:22px}
+.task{display:flex;align-items:center;gap:12px;padding:12px 14px}
+.chk{flex:none;width:28px;height:28px;border-radius:9px;border:2.5px solid #c9d2ee;display:grid;place-items:center;color:#fff;transition:background .2s,border-color .2s}
+.chk.on{background:var(--blue);border-color:var(--blue)}
+.task.done .t{text-decoration:line-through;color:#9aa3c2}
+.xp{font-size:12px;font-weight:800;color:var(--blue);white-space:nowrap}
+.task.done .xp{color:var(--green)}
+/* toast / modal */
+.toast{position:fixed;left:50%;top:calc(16px + env(safe-area-inset-top,0px));transform:translate(-50%,-160%);background:#141b3a;color:#fff;padding:12px 18px;border-radius:16px;font-weight:800;z-index:60;transition:transform .4s cubic-bezier(.2,.8,.2,1);max-width:calc(100% - 32px);text-align:center}
+.toast.show{transform:translate(-50%,0)}
+.modal{position:fixed;inset:0;background:rgba(20,27,58,.45);display:flex;align-items:flex-end;justify-content:center;z-index:50;animation:fade .2s}
+@keyframes fade{from{opacity:0}}
+.sheet{width:min(440px,100%);background:#fff;border-radius:30px 30px 0 0;padding:22px 18px calc(22px + env(safe-area-inset-bottom,0px));display:flex;flex-direction:column;gap:12px;animation:up .3s cubic-bezier(.2,.8,.2,1)}
+@keyframes up{from{transform:translateY(40px)}}
+canvas.confetti{position:fixed;inset:0;pointer-events:none;z-index:70}
+/* certificate */
+.cert{border-radius:26px;padding:16px;background:linear-gradient(160deg,#fff7e0,#ffe7b0);box-shadow:0 14px 30px -16px rgba(200,140,0,.6)}
+.cert .in{border:2px dashed rgba(180,120,0,.35);border-radius:18px;padding:18px 14px;text-align:center}
+.medal{width:54px;height:54px;border-radius:50%;display:grid;place-items:center;color:#fff;margin:0 auto}
+/* family */
+.fam{border-radius:26px;padding:16px;background:linear-gradient(135deg,#0f2a6b,var(--blue));color:#fff}
+.qr{width:70px;height:70px;border-radius:12px;background:#fff;padding:5px;flex:none}
+.qr svg{width:100%;height:100%}
+.switch{position:relative;width:48px;height:28px;border-radius:20px;background:#cdd5ec;flex:none;transition:background .2s}
+.switch[aria-checked="true"]{background:var(--blue)}
+.switch::after{content:"";position:absolute;left:3px;top:3px;width:22px;height:22px;border-radius:50%;background:#fff;transition:transform .2s;box-shadow:0 2px 4px rgba(0,0,0,.2)}
+.switch[aria-checked="true"]::after{transform:translateX(20px)}
+.spinner{width:34px;height:34px;border-radius:50%;border:4px solid #dfe7ff;border-top-color:var(--blue);animation:spin .8s linear infinite;margin:40vh auto 0}
+@keyframes spin{to{transform:rotate(360deg)}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div class="shell" id="app"><div class="spinner" aria-label="Carregando"></div></div>
+<nav class="nav" id="nav" hidden aria-label="Navegação principal"></nav>
+<div class="toast" id="toast" role="status"></div>
+
+<script src="../assets/vendor/supabase-2.45.4.js"></script>
+<script src="../assets/vendor/qrcode-generator-1.4.4.js"></script>
+<script>
+(() => {
+"use strict";
+const sb = supabase.createClient("https://hmnhcinkmfwtutkbxejb.supabase.co", "sb_publishable_U-B2cBm468M1lHoGZIzSnA_lmBsWe1S");
+const $ = (s, el = document) => el.querySelector(s);
+const $$ = (s, el = document) => [...el.querySelectorAll(s)];
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const app = $("#app"), nav = $("#nav");
+const BASE = location.origin + location.pathname;
+
+/* ---------- Static data ---------- */
+const I = {
+  user:'<path d="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"/>',
+  lock:'<rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/>',
+  mail:'<rect x="3" y="5" width="18" height="14" rx="3"/><path d="M3 7l9 6 9-6"/>',
+  cake:'<path d="M4 21h16M5 21v-7h14v7M12 14V9M12 6.5a1.5 1.5 0 0 0 1.5-1.5c0-1-1.5-3-1.5-3s-1.5 2-1.5 3A1.5 1.5 0 0 0 12 6.5z"/>',
+  home:'<path d="M3 11l9-8 9 8v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/>',
+  book:'<path d="M4 5a2 2 0 0 1 2-2h5v18H6a2 2 0 0 1-2-2zM13 3h5a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-5z"/>',
+  tasks:'<path d="M9 11l3 3 8-8"/><path d="M20 12v7a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h9"/>',
+  award:'<circle cx="12" cy="9" r="6"/><path d="M8.5 14l-1.5 7 5-3 5 3-1.5-7"/>',
+  check:'<path d="M5 12l5 5 9-10"/>',
+  dice:'<rect x="3" y="3" width="18" height="18" rx="4"/><circle cx="8.5" cy="8.5" r="1.3" fill="currentColor"/><circle cx="15.5" cy="15.5" r="1.3" fill="currentColor"/><circle cx="12" cy="12" r="1.3" fill="currentColor"/>',
+  back:'<path d="M15 6l-6 6 6 6"/>',
+  plus:'<path d="M12 5v14M5 12h14"/>',
+  share:'<circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 13.5l6.8 4M15.4 6.5l-6.8 4"/>',
+  down:'<path d="M12 3v12M7 10l5 5 5-5M5 21h14"/>',
+  family:'<circle cx="9" cy="8" r="3.5"/><circle cx="17" cy="9" r="2.5"/><path d="M2.5 20c1-3.5 3.5-5 6.5-5s5.5 1.5 6.5 5M15 15c2.8 0 5 1.4 6 4"/>',
+  out:'<path d="M15 4h3a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-3M10 17l5-5-5-5M15 12H3"/>',
+  play:'<path d="M7 5l12 7-12 7z"/>'
+};
+const ic = (n, sw = 2) => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="${sw}" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${I[n]}</svg>`;
+const CI = {
+  robotica:'<rect x="4" y="8" width="16" height="11" rx="3"/><path d="M12 8V4M9 13h.01M15 13h.01M9.5 16h5"/>',
+  programacao:'<path d="M8 7l-5 5 5 5M16 7l5 5-5 5M14 4l-4 16"/>',
+  ia:'<path d="M12 3l1.8 4.7L18.5 9.5l-4.7 1.8L12 16l-1.8-4.7L5.5 9.5l4.7-1.8z"/>',
+  jogos:'<path d="M6 8h12a4 4 0 0 1 3.9 4.8l-1 4.6a2 2 0 0 1-3.4 1L15 16H9l-2.5 2.4a2 2 0 0 1-3.4-1l-1-4.6A4 4 0 0 1 6 8z"/><path d="M7 12h3M8.5 10.5v3"/>',
+  design:'<path d="M12 3a9 9 0 1 0 0 18c1.1 0 1.6-.9 1.2-1.9-.5-1.1.2-2.1 1.4-2.1H17a4 4 0 0 0 4-4c0-5.5-4-10-9-10z"/>',
+  empreendedorismo:'<path d="M3 17l6-6 4 4 8-8"/><path d="M15 7h6v6"/>',
+  informatica:'<rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 20h8M12 16v4"/>'
+};
+const COURSES = [
+  {id:"robotica", nome:"Robótica", cor:"#2f6fff", bg:"#e8efff", desc:"Monte e programe robôs com sensores e Arduino.", aulas:["Conhecendo o kit","Motores e rodas","Sensor de distância","Robô que desvia","Robô seguidor de linha"]},
+  {id:"programacao", nome:"Programação", cor:"#2f6fff", bg:"#e3f0ff", desc:"Da lógica em blocos ao JavaScript.", aulas:["Lógica com blocos","Variáveis e laços","Funções","Seu primeiro site","Seu primeiro app"]},
+  {id:"ia", nome:"Inteligência Artificial", cor:"#8b5cf6", bg:"#f1e8ff", desc:"Entenda e use a IA para criar e resolver problemas.", aulas:["O que é inteligência artificial","Ensinando a máquina","IA que reconhece imagens","Assistente com IA","Projeto final"]},
+  {id:"jogos", nome:"Criação de Jogos", cor:"#10b981", bg:"#e3fbf1", desc:"Game design e programação de jogos 2D e 3D.", aulas:["Ideia e roteiro","Personagem","Movimento","Fases e pontuação","Publicando o jogo"]},
+  {id:"design", nome:"Design Gráfico", cor:"#ff6b8b", bg:"#ffe9ef", desc:"Logos, posts e identidade visual.", aulas:["Cores e formas","Tipografia","Seu primeiro logo","Posts para redes","Portfólio"]},
+  {id:"empreendedorismo", nome:"Empreendedorismo Digital", cor:"#f59e0b", bg:"#fff3dc", desc:"Transforme ideias em negócio.", aulas:["Encontrando uma ideia","Quem é o cliente","Vendendo online","Dinheiro e preço","Pitch final"]},
+  {id:"informatica", nome:"Informática", cor:"#0ea5e9", bg:"#e0f4fd", desc:"Domínio do computador e da internet com segurança.", aulas:["Conhecendo o computador","Arquivos e pastas","Internet segura","Documentos e planilhas","Apresentações"]}
+];
+const C = id => COURSES.find(c => c.id === id) || COURSES[0];
+const cIcon = (id, size = 22) => `<svg width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${CI[id]}</svg>`;
+
+/* ---------- Avatar (SVG) ---------- */
+const SKINS = ["#f9d7c0","#f1c27d","#d9a066","#b07a4f","#8d5524","#5c3a21"];
+const HAIRC = ["#2a1d17","#6b4226","#d9a45b","#c0392b","#4b7bff","#a66bff"];
+const HOODIE = ["#141b3a","#2f6fff","#ff6b8b","#22c58b","#ffb020","#e9ecf5"];
+const STYLES = [["curto","Curto"],["espetado","Espetado"],["cacheado","Cacheado"],["longo","Longo"],["coque","Coque"]];
+const ACCS = [["nenhum","Nenhum"],["headset","Headset"],["oculos","Óculos"],["bone","Boné"],["mochila","Mochila"]];
+const defaultAvatar = g => g === "menina"
+  ? {pele:SKINS[0], cabelo_estilo:"longo", cabelo_cor:HAIRC[1], moletom_cor:HOODIE[2], acessorio:"headset", genero:"menina"}
+  : {pele:SKINS[0], cabelo_estilo:"espetado", cabelo_cor:HAIRC[0], moletom_cor:HOODIE[0], acessorio:"headset", genero:"menino"};
+const shade = (hex, p) => { const n = parseInt(hex.slice(1), 16); let r = n >> 16, g = n >> 8 & 255, b = n & 255; const f = v => Math.max(0, Math.min(255, Math.round(v + (p < 0 ? v : 255 - v) * p))); return "#" + [f(r), f(g), f(b)].map(v => v.toString(16).padStart(2, "0")).join(""); };
+function avatarSVG(a, bust = false) {
+  a = Object.assign(defaultAvatar(a?.genero), a || {});
+  const sk = a.pele, skD = shade(sk, -.12), hc = a.cabelo_cor, hcD = shade(hc, -.25), hd = a.moletom_cor, hdD = shade(hd, -.2);
+  const light = ["#e9ecf5","#ffb020"].includes(hd);
+  const logoFg = light ? "#2f6fff" : "#dfe7f5";
+  const girl = a.genero === "menina";
+  let back = "", hair = "", acc = "", accBack = "";
+  if (a.cabelo_estilo === "longo") back = `<path d="M44 84c0-40 26-60 56-60s56 20 56 60v66c0 8-8 12-16 10l-80 0c-8 2-16-2-16-10z" fill="${hcD}"/>`;
+  if (a.cabelo_estilo === "coque") back = `<circle cx="100" cy="22" r="20" fill="${hc}"/><circle cx="94" cy="16" r="6" fill="${shade(hc,.15)}" opacity=".6"/>`;
+  const hairs = {
+    curto:`<path d="M47 82c-2-34 22-54 53-54s56 18 53 54c-8-14-20-22-34-24-10 8-30 10-48 6-10 4-18 10-24 18z" fill="${hc}"/>`,
+    espetado:`<path d="M46 84c-4-22 4-40 18-48l-4-14 16 8 6-16 12 12 12-14 6 16 16-6-4 16c14 8 22 26 18 46-8-14-22-24-40-26-14 8-34 8-48 2-6 6-10 14-12 24z" fill="${hc}"/><path d="M70 44l12-6M98 38l10-2M122 46l8 4" stroke="${shade(hc,.18)}" stroke-width="3" stroke-linecap="round"/>`,
+    cacheado:`<g fill="${hc}"><circle cx="58" cy="66" r="15"/><circle cx="72" cy="46" r="16"/><circle cx="94" cy="36" r="17"/><circle cx="118" cy="40" r="16"/><circle cx="136" cy="56" r="15"/><circle cx="146" cy="76" r="12"/><circle cx="52" cy="84" r="11"/></g><g fill="${shade(hc,.15)}" opacity=".5"><circle cx="90" cy="32" r="5"/><circle cx="120" cy="36" r="4"/></g>`,
+    longo:`<path d="M46 90c-4-38 20-62 54-62s58 24 54 62c-6-18-18-30-32-34-6 10-26 16-44 14 0 0-10 6-14 10-8 2-14 6-18 10z" fill="${hc}"/>`,
+    coque:`<path d="M47 82c-2-34 22-54 53-54s56 18 53 54c-10-18-28-28-53-28s-43 10-53 28z" fill="${hc}"/>`
+  };
+  hair = hairs[a.cabelo_estilo] || hairs.curto;
+  if (a.acessorio === "headset") acc = `<path d="M42 92c0-40 26-66 58-66s58 26 58 66" fill="none" stroke="#2b3550" stroke-width="7" stroke-linecap="round"/><rect x="33" y="80" width="18" height="30" rx="8" fill="#2f6fff"/><rect x="149" y="80" width="18" height="30" rx="8" fill="#2f6fff"/><rect x="37" y="86" width="10" height="18" rx="4" fill="#9fd8ff"/><rect x="153" y="86" width="10" height="18" rx="4" fill="#9fd8ff"/>`;
+  if (a.acessorio === "oculos") acc = `<g fill="rgba(255,255,255,.25)" stroke="#2b3550" stroke-width="4"><circle cx="80" cy="96" r="14"/><circle cx="120" cy="96" r="14"/></g><path d="M94 96h12" stroke="#2b3550" stroke-width="4"/>`;
+  if (a.acessorio === "bone") acc = `<path d="M46 74c2-30 24-48 54-48s52 18 54 48z" fill="#2f6fff"/><path d="M100 74c26 0 54 2 70 10-14 4-40 2-70-2z" fill="#2357d6"/><circle cx="100" cy="28" r="5" fill="#2357d6"/><text x="100" y="62" font-family="Unbounded,Arial" font-weight="900" font-size="18" fill="#fff" text-anchor="middle">S</text>`;
+  if (a.acessorio === "mochila") { accBack = `<rect x="44" y="160" width="112" height="78" rx="20" fill="#ffb020"/>`; acc = ""; }
+  const strap = a.acessorio === "mochila" ? `<path d="M72 152l-6 70M128 152l6 70" stroke="#e08e00" stroke-width="9" stroke-linecap="round"/>` : "";
+  const lashes = girl ? `<path d="M68 88l-4-4M74 85l-2-5M126 85l2-5M132 88l4-4" stroke="#2b1d18" stroke-width="2.4" stroke-linecap="round"/>` : "";
+  const body = `
+    ${accBack}
+    <path d="M58 158c8-12 24-18 42-18s34 6 42 18l14 70c2 10-6 18-16 18H60c-10 0-18-8-16-18z" fill="${hd}"/>
+    <path d="M74 146c6 10 16 16 26 16s20-6 26-16c-8-4-16-6-26-6s-18 2-26 6z" fill="${hdD}"/>
+    <path d="M90 158l-3 26M110 158l3 26" stroke="${light ? "#8a93b4" : "#5fa8ff"}" stroke-width="3" stroke-linecap="round"/>
+    <circle cx="100" cy="200" r="15" fill="${light ? "#fff" : shade(hd,.12)}"/><text x="100" y="207" font-family="Unbounded,Arial" font-weight="900" font-size="19" fill="${logoFg}" text-anchor="middle">S</text>
+    <path d="M58 162c-12 6-20 24-22 46-1 8 4 12 10 12s9-4 10-10c2-14 6-24 10-30z" fill="${hdD}"/>
+    <path d="M142 162c12 6 20 24 22 46 1 8-4 12-10 12s-9-4-10-10c-2-14-6-24-10-30z" fill="${hdD}"/>
+    <circle cx="46" cy="222" r="9" fill="${sk}"/><circle cx="154" cy="222" r="9" fill="${sk}"/>
+    ${strap}`;
+  const legs = `<rect x="70" y="240" width="24" height="26" rx="8" fill="#1f2a44"/><rect x="106" y="240" width="24" height="26" rx="8" fill="#1f2a44"/>
+    <path d="M62 266h36v8a6 6 0 0 1-6 6H66a6 6 0 0 1-6-6z" fill="#fff"/><path d="M102 266h36v8a6 6 0 0 1-6 6h-26a6 6 0 0 1-6-6z" fill="#fff"/>
+    <path d="M62 276h36M102 276h36" stroke="#2f6fff" stroke-width="3"/>`;
+  const head = `
+    <rect x="88" y="128" width="24" height="20" rx="8" fill="${skD}"/>
+    <ellipse cx="48" cy="98" rx="9" ry="12" fill="${skD}"/><ellipse cx="152" cy="98" rx="9" ry="12" fill="${skD}"/>
+    <ellipse cx="100" cy="90" rx="53" ry="50" fill="${sk}"/>
+    ${hair}
+    <path d="M68 78q12-8 22-2M110 76q10-6 22 2" stroke="${shade(hc,-.1)}" stroke-width="4.5" fill="none" stroke-linecap="round"/>
+    <ellipse cx="80" cy="96" rx="9.5" ry="11" fill="#fff"/><ellipse cx="120" cy="96" rx="9.5" ry="11" fill="#fff"/>
+    <circle cx="81" cy="98" r="6.5" fill="#3a2316"/><circle cx="121" cy="98" r="6.5" fill="#3a2316"/>
+    <circle cx="83" cy="95" r="2.2" fill="#fff"/><circle cx="123" cy="95" r="2.2" fill="#fff"/>
+    ${lashes}
+    <ellipse cx="66" cy="112" rx="8" ry="5" fill="#ff8fa3" opacity=".35"/><ellipse cx="134" cy="112" rx="8" ry="5" fill="#ff8fa3" opacity=".35"/>
+    <path d="M100 104q-3 6 0 8" stroke="${skD}" stroke-width="3" fill="none" stroke-linecap="round"/>
+    <path d="M86 116q14 12 28 0" stroke="#7a2e2e" stroke-width="4" fill="#fff" stroke-linecap="round"/>
+    ${acc}`;
+  const vb = bust ? "20 0 160 170" : "0 0 200 286";
+  return `<svg viewBox="${vb}" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Avatar">${back}${bust ? body : body + legs}${head}</svg>`;
+}
+const avatarCircle = (a, size = 52, ring = true) => `<span style="display:inline-block;width:${size}px;height:${size}px;border-radius:50%;overflow:hidden;background:linear-gradient(160deg,#dfe9ff,#c9d9ff);flex:none;${ring ? "box-shadow:0 0 0 3px #fff,0 0 0 5px var(--blue)" : ""}">${avatarSVG(a, true)}</span>`;
+
+/* ---------- State ---------- */
+const S = { session:null, profile:null, enroll:[], tasks:[], certs:[], badges:[], guardians:[], loginGender:"menino" };
+const todayStr = () => { const d = new Date(); d.setMinutes(d.getMinutes() - d.getTimezoneOffset()); return d.toISOString().slice(0, 10); };
+const level = xp => Math.floor((xp || 0) / 100) + 1;
+
+function toast(msg) { const t = $("#toast"); t.textContent = msg; t.classList.add("show"); clearTimeout(t._h); t._h = setTimeout(() => t.classList.remove("show"), 2600); }
+function confetti() {
+  if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  const c = document.createElement("canvas"); c.className = "confetti"; document.body.appendChild(c);
+  const x = c.getContext("2d"); c.width = innerWidth; c.height = innerHeight;
+  const cols = ["#2f6fff","#8b5cf6","#10b981","#f59e0b","#ff6b8b","#5fd4ff"];
+  const P = Array.from({length: 140}, () => ({x: c.width / 2, y: c.height * .35, vx: (Math.random() - .5) * 14, vy: Math.random() * -14 - 4, s: Math.random() * 7 + 4, r: Math.random() * 6, vr: (Math.random() - .5) * .3, col: cols[Math.random() * cols.length | 0]}));
+  let f = 0; (function tick() { x.clearRect(0, 0, c.width, c.height); P.forEach(p => { p.vy += .35; p.x += p.vx; p.y += p.vy; p.r += p.vr; x.save(); x.translate(p.x, p.y); x.rotate(p.r); x.fillStyle = p.col; x.fillRect(-p.s / 2, -p.s / 4, p.s, p.s / 2); x.restore(); }); if (++f < 140) requestAnimationFrame(tick); else c.remove(); })();
+}
+
+/* ---------- Data ---------- */
+async function loadAll() {
+  const uid = S.session.user.id;
+  const [p, e, t, c, b, g] = await Promise.all([
+    sb.from("hs_profiles").select("*").eq("id", uid).maybeSingle(),
+    sb.from("hs_enrollments").select("*").order("updated_at", {ascending: false}),
+    sb.from("hs_tasks").select("*").order("data").order("concluida"),
+    sb.from("hs_certificates").select("*").order("emitido_em", {ascending: false}),
+    sb.from("hs_badges").select("*"),
+    sb.from("hs_guardians").select("*").order("created_at")
+  ]);
+  S.profile = p.data; S.enroll = e.data || []; S.tasks = t.data || []; S.certs = c.data || []; S.badges = b.data || []; S.guardians = g.data || [];
+}
+async function ensureProfile() {
+  const uid = S.session.user.id;
+  let { data } = await sb.from("hs_profiles").select("*").eq("id", uid).maybeSingle();
+  if (!data) {
+    const md = S.session.user.user_metadata || {};
+    const nome = md.nome || md.full_name || md.name || (S.session.user.email || "Aluno").split("@")[0];
+    const r = await sb.rpc("hs_bootstrap", {p_nome: nome, p_idade: parseInt(md.idade) || 10, p_genero: md.genero || S.loginGender});
+    if (r.error) throw r.error;
+    data = r.data;
+  }
+  S.profile = data;
+  await loadAll();
+}
+
+/* ---------- Router ---------- */
+const MAIN = ["inicio","cursos","tarefas","certificados","conta"];
+function go(r) { if (location.hash !== "#" + r) location.hash = r; else route(); }
+async function route() {
+  const h = location.hash.slice(1) || "inicio";
+  const [r, arg] = h.split("/");
+  if (r === "familia") return renderFamilia(arg);
+  if (!S.session) { nav.hidden = true; return r === "cadastro" ? renderCadastro() : renderLogin(); }
+  if (!S.profile) { app.innerHTML = '<div class="spinner"></div>'; try { await ensureProfile(); } catch (e) { console.error(e); app.innerHTML = `<div class="page"><h2>Não conseguimos abrir sua conta</h2><p class="muted">${esc(e.message)}</p><button class="btn" id="retry">Tentar de novo</button></div>`; $("#retry").onclick = () => location.reload(); return; } }
+  if (!S.profile.avatar && r !== "avatar") return go("avatar");
+  if (r === "avatar") { nav.hidden = true; return renderAvatar(); }
+  const view = {inicio: renderInicio, cursos: renderCursos, tarefas: renderTarefas, certificados: renderCertificados, conta: renderConta}[r] || renderInicio;
+  renderNav(MAIN.includes(r) ? r : "inicio");
+  view(arg);
+  window.scrollTo(0, 0);
+}
+function renderNav(on) {
+  nav.hidden = false;
+  const items = [["inicio","home","Início"],["cursos","book","Cursos"],["tarefas","tasks","Tarefas"],["certificados","award","Certificados"],["conta","user","Conta"]];
+  nav.innerHTML = items.map(([r, i, l]) => `<a href="#${r}" class="${r === on ? "on" : ""}" ${r === on ? 'aria-current="page"' : ""}>${ic(i, r === on ? 2.4 : 2)}${l}</a>`).join("");
+}
+
+/* ---------- Login / signup ---------- */
+function peekHTML() {
+  return S.loginGender === "menina" ? avatarSVG(defaultAvatar("menina"), true) : `<img src="../assets/app/hall-bust.webp" alt="Hall, mascote da Hall School">`;
+}
+function toggleHTML() {
+  return `<div class="toggle" role="group" aria-label="Escolha seu personagem">
+    <button type="button" data-g="menino" aria-pressed="${S.loginGender === "menino"}"><span class="face">${avatarSVG(defaultAvatar("menino"), true)}</span>Sou menino</button>
+    <button type="button" data-g="menina" aria-pressed="${S.loginGender === "menina"}"><span class="face">${avatarSVG(defaultAvatar("menina"), true)}</span>Sou menina</button></div>`;
+}
+function bindToggle(root) {
+  $$(".toggle button", root).forEach(b => b.onclick = () => { S.loginGender = b.dataset.g; $$(".toggle button", root).forEach(x => x.setAttribute("aria-pressed", String(x === b))); $(".peek", root).innerHTML = peekHTML(); });
+}
+function renderLogin() {
+  app.innerHTML = `<div class="login">
+    <div class="cloud" style="left:14px;top:230px;width:70px;height:30px"></div><div class="cloud" style="right:14px;top:262px;width:56px;height:26px"></div>
+    <div class="login-top"><h1>Bem-vindo<br>de volta!</h1><p class="muted" style="margin:8px 0 0;font-weight:700">Entre para continuar sua jornada</p></div>
+    ${toggleHTML()}
+    <div class="peek">${peekHTML()}</div>
+    <form class="card login-card" id="f" novalidate>
+      <label class="field"><i>${ic("mail")}</i><input id="email" type="email" autocomplete="email" placeholder="E-mail" required></label>
+      <label class="field"><i>${ic("lock")}</i><input id="senha" type="password" autocomplete="current-password" placeholder="Senha" required></label>
+      <button type="button" class="link small" id="forgot" style="align-self:flex-end;margin-top:-4px">Esqueci a senha</button>
+      <p class="err" id="err" role="alert"></p>
+      <button class="btn" id="go">Entrar</button>
+      <p class="small muted" style="text-align:center;margin:2px 0 0;font-weight:700">ou continue com</p>
+      <div class="social"><button type="button" id="google" aria-label="Entrar com Google" style="color:#ea4335">G</button></div>
+      <p class="small" style="text-align:center;margin:4px 0 0;font-weight:700;color:var(--muted)">Primeira vez aqui? <a class="link" href="#cadastro">Criar conta</a></p>
+      <p class="small" style="text-align:center;margin:0;font-weight:700;color:var(--muted)">É responsável? <a class="link" href="#familia">Acompanhar meu filho</a></p>
+    </form></div>`;
+  bindToggle(app);
+  $("#f").onsubmit = async e => {
+    e.preventDefault(); const err = $("#err"); err.textContent = "";
+    const email = $("#email").value.trim(), password = $("#senha").value;
+    if (!email || !password) { err.textContent = "Preencha e-mail e senha."; return; }
+    $("#go").disabled = true; $("#go").textContent = "Entrando…";
+    const { error } = await sb.auth.signInWithPassword({ email, password });
+    $("#go").disabled = false; $("#go").textContent = "Entrar";
+    if (error) err.textContent = /confirm/i.test(error.message) ? "Confirme seu e-mail antes de entrar. Veja sua caixa de entrada." : "E-mail ou senha incorretos.";
+  };
+  $("#google").onclick = async () => {
+    const { error } = await sb.auth.signInWithOAuth({ provider: "google", options: { redirectTo: BASE } });
+    if (error) $("#err").textContent = "Login com Google ainda não está disponível. Use e-mail e senha.";
+  };
+  $("#forgot").onclick = async () => {
+    const email = $("#email").value.trim(); const err = $("#err");
+    if (!email) { err.textContent = "Digite seu e-mail acima e toque em “Esqueci a senha”."; return; }
+    const { error } = await sb.auth.resetPasswordForEmail(email, { redirectTo: BASE });
+    err.className = error ? "err" : "ok"; err.textContent = error ? "Não foi possível enviar agora. Tente de novo." : "Enviamos um link para redefinir sua senha.";
+  };
+}
+function renderCadastro() {
+  app.innerHTML = `<div class="login">
+    <a href="#login" class="row" style="text-decoration:none;color:var(--ink);font-weight:800;gap:4px;width:max-content"><span style="width:22px;height:22px">${ic("back", 2.4)}</span>Voltar</a>
+    <div class="login-top" style="margin-top:6px"><h1 style="font-size:26px">Criar conta</h1><p class="muted" style="margin:6px 0 0;font-weight:700">Escolha seu personagem e comece</p></div>
+    ${toggleHTML()}
+    <div class="peek" style="height:150px">${peekHTML()}</div>
+    <form class="card login-card" id="f" novalidate>
+      <label class="field"><i>${ic("user")}</i><input id="nome" autocomplete="given-name" placeholder="Seu nome" maxlength="80" required></label>
+      <label class="field"><i>${ic("cake")}</i><select id="idade" required><option value="">Sua idade</option>${Array.from({length: 11}, (_, i) => `<option>${i + 6}</option>`).join("")}</select></label>
+      <label class="field"><i>${ic("mail")}</i><input id="email" type="email" autocomplete="email" placeholder="E-mail (pode ser do responsável)" required></label>
+      <label class="field"><i>${ic("lock")}</i><input id="senha" type="password" autocomplete="new-password" placeholder="Senha (mínimo 6 caracteres)" minlength="6" required></label>
+      <p class="err" id="err" role="alert"></p>
+      <button class="btn" id="go">Criar minha conta</button>
+    </form></div>`;
+  bindToggle(app);
+  $("#f").onsubmit = async e => {
+    e.preventDefault(); const err = $("#err"); err.className = "err"; err.textContent = "";
+    const nome = $("#nome").value.trim(), idade = $("#idade").value, email = $("#email").value.trim(), password = $("#senha").value;
+    if (!nome || !idade || !email || password.length < 6) { err.textContent = "Preencha nome, idade, e-mail e uma senha com 6 caracteres ou mais."; return; }
+    $("#go").disabled = true; $("#go").textContent = "Criando…";
+    const { data, error } = await sb.auth.signUp({ email, password, options: { data: { nome, idade, genero: S.loginGender }, emailRedirectTo: BASE } });
+    $("#go").disabled = false; $("#go").textContent = "Criar minha conta";
+    if (error) { err.textContent = /registered|exists/i.test(error.message) ? "Este e-mail já tem conta. Volte e faça login." : "Não foi possível criar a conta: " + error.message; return; }
+    if (!data.session) { err.className = "ok"; err.textContent = "Conta criada! Enviamos um e-mail de confirmação. Confirme e depois faça login."; }
+  };
+}
+
+/* ---------- Avatar builder ---------- */
+function renderAvatar() {
+  const p = S.profile;
+  let a = Object.assign(defaultAvatar(p.genero), p.avatar || {}, { genero: p.genero });
+  let tab = "cabelo";
+  const first = !p.avatar;
+  const draw = () => {
+    app.innerHTML = `<div class="page" style="padding-bottom:110px">
+      <div class="between"><h1 style="font-size:20px">${first ? "Seu avatar" : "Editar avatar"}</h1>${first ? '<span class="pill" style="background:#fff;color:var(--blue)">Passo 2 de 3</span>' : '<a href="#conta" class="pill" style="background:#fff;color:var(--muted);text-decoration:none">Cancelar</a>'}</div>
+      <div class="stage"><div class="ped"></div><div class="av">${avatarSVG(a)}</div>
+        <span class="pill" style="position:absolute;left:14px;top:14px;background:#fff">${esc(p.nome)} · ${esc(p.idade || "")} anos</span>
+        <button id="rand" aria-label="Sortear avatar" style="position:absolute;right:14px;top:14px;width:40px;height:40px;border-radius:12px;background:#fff;display:grid;place-items:center;color:var(--blue)"><span style="width:22px;height:22px">${ic("dice")}</span></button></div>
+      <div class="tabs" role="tablist">${[["cabelo","Cabelo"],["pele","Pele"],["roupa","Roupa"],["extras","Extras"]].map(([k, l]) => `<button role="tab" data-t="${k}" aria-selected="${tab === k}">${l}</button>`).join("")}</div>
+      <div id="opts">${optsHTML()}</div>
+      <div style="position:fixed;left:50%;transform:translateX(-50%);bottom:calc(16px + env(safe-area-inset-bottom,0px));width:min(404px,calc(100% - 36px));z-index:5"><button class="btn" id="save">${first ? "Pronto! Criar meu avatar" : "Salvar avatar"}</button></div>
+    </div>`;
+    $$(".tabs button").forEach(b => b.onclick = () => { tab = b.dataset.t; draw(); });
+    $$("[data-k]").forEach(b => b.onclick = () => { a[b.dataset.k] = b.dataset.v; draw(); });
+    $("#rand").onclick = () => { const r = arr => arr[Math.random() * arr.length | 0]; a = Object.assign(a, { pele: r(SKINS), cabelo_cor: r(HAIRC), moletom_cor: r(HOODIE), cabelo_estilo: r(STYLES)[0], acessorio: r(ACCS)[0] }); draw(); };
+    $("#save").onclick = async () => {
+      $("#save").disabled = true;
+      const { data, error } = await sb.from("hs_profiles").update({ avatar: a }).eq("id", p.id).select().single();
+      if (error) { $("#save").disabled = false; toast("Não foi possível salvar. Tente de novo."); return; }
+      S.profile = data;
+      if (first) { confetti(); toast("Avatar criado! Bem-vindo à Hall School"); }
+      else toast("Avatar salvo");
+      go(first ? "inicio" : "conta");
+    };
+  };
+  const sw = (k, list) => `<div class="swatches">${list.map(c => `<button class="sw" style="background:${c}" data-k="${k}" data-v="${c}" aria-pressed="${a[k] === c}" aria-label="Cor ${c}"></button>`).join("")}</div>`;
+  const items = (k, list, icons) => `<div class="items">${list.map(([v, l]) => `<button class="item" data-k="${k}" data-v="${v}" aria-pressed="${a[k] === v}">${icons ? icons(v) : ""}${l}</button>`).join("")}</div>`;
+  const accIcon = v => ({nenhum:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="8"/><path d="M6 18L18 6"/></svg>', headset:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 15v-3a8 8 0 0 1 16 0v3"/><rect x="2" y="14" width="5" height="7" rx="2"/><rect x="17" y="14" width="5" height="7" rx="2"/></svg>', oculos:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="6" cy="14" r="4"/><circle cx="18" cy="14" r="4"/><path d="M10 14h4"/></svg>', bone:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 15a9 6 0 0 1 18 0z"/><path d="M12 15h10"/></svg>', mochila:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="7" width="14" height="14" rx="3"/><path d="M9 7V5a3 3 0 0 1 6 0v2M9 13h6"/></svg>'}[v]);
+  const optsHTML = () => ({
+    cabelo: `<p class="lbl">ESTILO</p>${items("cabelo_estilo", STYLES)}<p class="lbl">COR DO CABELO</p>${sw("cabelo_cor", HAIRC)}`,
+    pele: `<p class="lbl">TOM DE PELE</p>${sw("pele", SKINS)}`,
+    roupa: `<p class="lbl">COR DO MOLETOM</p>${sw("moletom_cor", HOODIE)}`,
+    extras: `<p class="lbl">ACESSÓRIOS</p>${items("acessorio", ACCS, accIcon)}`
+  })[tab];
+  draw();
+}
+
+/* ---------- Início ---------- */
+function greet() { const h = new Date().getHours(); return h < 12 ? "Bom dia," : h < 18 ? "Boa tarde," : "Boa noite,"; }
+function taskHTML(t) {
+  return `<div class="card task ${t.concluida ? "done" : ""}" data-id="${t.id}">
+    <button class="chk ${t.concluida ? "on" : ""}" aria-label="${t.concluida ? "Tarefa concluída" : "Concluir tarefa"}" ${t.concluida ? "disabled" : ""}><span style="width:15px;height:15px">${ic("check", 3.5)}</span></button>
+    <div class="t" style="flex:1;font-size:14.5px;font-weight:700;min-width:0">${esc(t.titulo)}${t.curso ? `<div class="small" style="color:var(--dim);font-weight:700;text-decoration:none">${esc(C(t.curso).nome)}</div>` : ""}</div>
+    <span class="xp">+${t.xp} XP</span></div>`;
+}
+function bindTasks(root, after) {
+  $$(".task .chk:not([disabled])", root).forEach(b => b.onclick = async () => {
+    const el = b.closest(".task"); const id = el.dataset.id;
+    b.classList.add("on"); el.classList.add("done"); b.disabled = true;
+    const { data, error } = await sb.rpc("hs_complete_task", { p_task: id });
+    if (error) { b.classList.remove("on"); el.classList.remove("done"); b.disabled = false; toast("Não foi possível concluir. Tente de novo."); return; }
+    const t = S.tasks.find(x => x.id === id); if (t) t.concluida = true;
+    const before = level(S.profile.xp); S.profile.xp = data;
+    toast(`+${t ? t.xp : ""} XP! Muito bem`);
+    if (level(data) > before) { confetti(); toast(`Você subiu para o nível ${level(data)}!`); }
+    after && after();
+  });
+}
+function renderInicio() {
+  const p = S.profile;
+  const cur = S.enroll.find(e => e.progresso < 100) || S.enroll[0];
+  const today = todayStr();
+  const todays = S.tasks.filter(t => t.data === today);
+  const done = todays.filter(t => t.concluida).length;
+  const xpIn = (p.xp || 0) % 100;
+  app.innerHTML = `<div class="page">
+    <div class="row">${avatarCircle(p.avatar)}<div style="flex:1;min-width:0"><div class="small muted" style="font-weight:700">${greet()}</div><h1 style="font-size:21px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(p.nome.split(" ")[0])}!</h1></div>
+      <span class="pill" style="background:#fff3e0;color:#e07b00">🔥 ${p.sequencia}</span><span class="pill" style="background:#e8efff;color:var(--blue)">Nv. ${level(p.xp)}</span></div>
+    <div class="card" style="margin-top:14px;padding:12px 14px"><div class="between small" style="font-weight:800"><span>${p.xp} XP</span><span class="muted">${100 - xpIn} XP para o nível ${level(p.xp) + 1}</span></div><div class="prog" style="margin-top:8px"><b style="width:${xpIn}%"></b></div></div>
+    ${cur ? `<a href="#cursos/${cur.curso}" class="continue" style="display:block;text-decoration:none">
+      <div class="info"><div class="small" style="font-weight:800;opacity:.85;letter-spacing:1px">CONTINUAR</div>
+      <h2 style="font-size:21px;margin-top:6px">${esc(C(cur.curso).nome)}<br>Módulo ${cur.modulo}</h2>
+      <div class="small" style="opacity:.9;margin-top:6px">${esc(cur.aula || "")}</div>
+      <div style="margin-top:14px"><div class="prog" style="background:rgba(255,255,255,.3)"><b style="width:${cur.progresso}%;background:#fff"></b></div><div class="small" style="font-weight:800;margin-top:6px">${cur.progresso}% concluído</div></div></div>
+      <img src="../assets/app/hall-full.webp" alt=""></a>` : ""}
+    <div class="sec-t"><h2>Meus cursos</h2><a href="#cursos" class="link small">Ver todos</a></div>
+    <div class="cgrid">${S.enroll.slice(0, 3).map(e => { const c = C(e.curso); return `<a href="#cursos/${c.id}" class="card ccard" style="text-decoration:none;color:inherit"><span class="ic" style="background:${c.bg};color:${c.cor}">${cIcon(c.id)}</span><span class="small" style="font-weight:800;line-height:1.2">${esc(c.nome)}</span><div class="prog" style="width:100%"><b style="width:${e.progresso}%"></b></div></a>`; }).join("")}</div>
+    <div class="sec-t"><h2>Tarefas de hoje</h2><span class="small" style="font-weight:800;color:var(--dim)">${done} de ${todays.length}</span></div>
+    <div style="display:flex;flex-direction:column;gap:8px" id="tl">${todays.length ? todays.map(taskHTML).join("") : `<div class="card" style="padding:18px;text-align:center" class="muted">Nenhuma tarefa para hoje. <a href="#tarefas" class="link">Criar uma</a></div>`}</div>
+  </div>`;
+  bindTasks(app, () => setTimeout(renderInicio, 700));
+}
+
+/* ---------- Cursos ---------- */
+function renderCursos(arg) {
+  const mine = id => S.enroll.find(e => e.curso === id);
+  app.innerHTML = `<div class="page"><h1 style="font-size:22px">Cursos</h1><p class="small muted" style="margin:4px 0 14px;font-weight:700">${S.enroll.length} de ${COURSES.length} trilhas em andamento</p>
+    <div style="display:flex;flex-direction:column;gap:10px">${COURSES.map(c => { const e = mine(c.id); return `<div class="card" style="padding:14px" id="c-${c.id}">
+      <div class="row"><span class="ic" style="width:50px;height:50px;background:${c.bg};color:${c.cor}">${cIcon(c.id, 24)}</span>
+        <div style="flex:1;min-width:0"><div style="font-weight:800">${esc(c.nome)}</div><div class="small muted">${e ? `Módulo ${e.modulo} · ${esc(e.aula || "")}` : esc(c.desc)}</div></div></div>
+      ${e ? `<div class="row" style="margin-top:12px"><div class="prog" style="flex:1"><b style="width:${e.progresso}%"></b></div><span class="small" style="font-weight:800;color:var(--dim)">${e.progresso}%</span></div>` : ""}
+      <button class="btn ${e ? "" : "ghost"}" data-c="${c.id}" style="height:46px;margin-top:12px;font-size:15px">${e ? (e.progresso >= 100 ? "Revisar" : "Continuar") : "Começar"}</button></div>`; }).join("")}</div></div>`;
+  $$("[data-c]").forEach(b => b.onclick = () => openLesson(b.dataset.c));
+  if (arg) { const el = $("#c-" + arg); if (el) { el.scrollIntoView({block: "center"}); el.style.boxShadow = "0 0 0 3px var(--blue)"; } }
+}
+async function openLesson(id) {
+  const c = C(id); let e = S.enroll.find(x => x.curso === id);
+  if (!e) {
+    const { data, error } = await sb.from("hs_enrollments").insert({ user_id: S.profile.id, curso: id, progresso: 0, modulo: 1, aula: c.aulas[0] }).select().single();
+    if (error) { toast("Não foi possível começar agora."); return; }
+    S.enroll.unshift(data); e = data; toast(`Você começou ${c.nome}!`);
+  }
+  const m = document.createElement("div"); m.className = "modal";
+  m.innerHTML = `<div class="sheet" role="dialog" aria-modal="true" aria-label="Aula">
+    <div class="row"><span class="ic" style="width:48px;height:48px;background:${c.bg};color:${c.cor}">${cIcon(c.id, 24)}</span><div><div class="small muted" style="font-weight:800">${esc(c.nome)} · Módulo ${e.modulo}</div><h2 style="font-size:18px">${esc(e.aula || c.aulas[0])}</h2></div></div>
+    <div style="height:170px;border-radius:20px;background:linear-gradient(135deg,${c.cor},#6a5cff);display:grid;place-items:center;color:#fff"><span style="width:56px;height:56px;border-radius:50%;background:rgba(255,255,255,.25);display:grid;place-items:center"><span style="width:26px;height:26px">${ic("play")}</span></span></div>
+    <p class="small muted" style="margin:0">Assista à aula com seu professor na unidade e marque como concluída para ganhar XP.</p>
+    <button class="btn" id="done">Concluir aula · +15 XP</button><button class="btn ghost" id="close">Fechar</button></div>`;
+  document.body.appendChild(m);
+  const close = () => m.remove();
+  m.onclick = ev => { if (ev.target === m) close(); };
+  $("#close", m).onclick = close;
+  $("#done", m).onclick = async () => {
+    const prog = Math.min(100, e.progresso + 20), mod = Math.min(c.aulas.length, Math.floor(prog / 20) + 1);
+    const { data, error } = await sb.from("hs_enrollments").update({ progresso: prog, modulo: mod, aula: c.aulas[Math.min(mod, c.aulas.length) - 1], updated_at: new Date().toISOString() }).eq("id", e.id).select().single();
+    if (error) { toast("Não foi possível salvar."); return; }
+    Object.assign(e, data);
+    const ins = await sb.from("hs_tasks").insert({ user_id: S.profile.id, titulo: `Aula: ${data.aula}`, curso: id, xp: 15, concluida: false }).select().single();
+    if (!ins.error) { await sb.rpc("hs_complete_task", { p_task: ins.data.id }).then(r => { if (!r.error) S.profile.xp = r.data; }); ins.data.concluida = true; S.tasks.push(ins.data); }
+    close(); toast(prog >= 100 ? `Curso concluído! Parabéns` : "+15 XP! Aula concluída"); if (prog >= 100) confetti();
+    S.enroll.sort((a, b) => new Date(b.updated_at) - new Date(a.updated_at));
+    renderCursos(id);
+  };
+}
+
+/* ---------- Tarefas ---------- */
+let taskFilter = "hoje";
+function renderTarefas() {
+  const today = todayStr(); const end = new Date(); end.setDate(end.getDate() + 6);
+  const endS = (() => { end.setMinutes(end.getMinutes() - end.getTimezoneOffset()); return end.toISOString().slice(0, 10); })();
+  const list = S.tasks.filter(t => taskFilter === "hoje" ? t.data === today : (t.data >= today && t.data <= endS));
+  const byDay = {}; list.forEach(t => (byDay[t.data] = byDay[t.data] || []).push(t));
+  const label = d => d === today ? "Hoje" : new Date(d + "T12:00").toLocaleDateString("pt-BR", { weekday: "long", day: "2-digit", month: "2-digit" });
+  app.innerHTML = `<div class="page"><div class="between"><h1 style="font-size:22px">Tarefas</h1><button class="pill" id="add" style="background:var(--blue);color:#fff"><span style="width:16px;height:16px">${ic("plus", 3)}</span>Nova</button></div>
+    <div class="tabs" role="tablist" style="margin-top:14px">${[["hoje","Hoje"],["semana","Semana"]].map(([k, l]) => `<button role="tab" data-f="${k}" aria-selected="${taskFilter === k}">${l}</button>`).join("")}</div>
+    <div id="days">${Object.keys(byDay).length ? Object.entries(byDay).map(([d, ts]) => `<div class="sec-t" style="margin-top:18px"><h2 style="font-size:14px;text-transform:capitalize">${esc(label(d))}</h2><span class="small" style="font-weight:800;color:var(--dim)">${ts.filter(t => t.concluida).length} de ${ts.length}</span></div><div style="display:flex;flex-direction:column;gap:8px">${ts.map(taskHTML).join("")}</div>`).join("") : `<div class="card" style="padding:22px;text-align:center;margin-top:16px"><b>Nada por aqui.</b><p class="small muted" style="margin:4px 0 0">Toque em “Nova” para criar uma tarefa.</p></div>`}</div></div>`;
+  $$("[data-f]").forEach(b => b.onclick = () => { taskFilter = b.dataset.f; renderTarefas(); });
+  bindTasks(app, () => setTimeout(renderTarefas, 600));
+  $("#add").onclick = () => {
+    const m = document.createElement("div"); m.className = "modal";
+    m.innerHTML = `<form class="sheet" role="dialog" aria-modal="true" aria-label="Nova tarefa"><h2 style="font-size:18px">Nova tarefa</h2>
+      <label class="field"><i>${ic("tasks")}</i><input id="tt" maxlength="120" placeholder="O que você vai fazer?" required></label>
+      <label class="field"><i>${ic("book")}</i><select id="tc"><option value="">Sem curso</option>${COURSES.map(c => `<option value="${c.id}">${esc(c.nome)}</option>`).join("")}</select></label>
+      <label class="field"><i>${ic("cake")}</i><input id="td" type="date" value="${today}" min="${today}"></label>
+      <button class="btn">Criar tarefa · +10 XP</button><button type="button" class="btn ghost" id="cl">Cancelar</button></form>`;
+    document.body.appendChild(m); $("#tt", m).focus();
+    $("#cl", m).onclick = () => m.remove(); m.onclick = ev => { if (ev.target === m) m.remove(); };
+    $("form", m).onsubmit = async ev => {
+      ev.preventDefault(); const titulo = $("#tt", m).value.trim(); if (!titulo) return;
+      const { data, error } = await sb.from("hs_tasks").insert({ user_id: S.profile.id, titulo, curso: $("#tc", m).value || null, xp: 10, data: $("#td", m).value || today }).select().single();
+      if (error) { toast("Não foi possível criar."); return; }
+      S.tasks.push(data); S.tasks.sort((a, b) => a.data.localeCompare(b.data)); m.remove(); toast("Tarefa criada"); renderTarefas();
+    };
+  };
+}
+
+/* ---------- Certificados ---------- */
+const MEDAL = { streak: ["linear-gradient(160deg,#ffd76a,#f0a400)", '<b style="font:900 18px var(--font-d)">7</b>'], code: ["linear-gradient(160deg,#7fb2ff,#2f6fff)", cIcon("programacao", 24)], game: ["linear-gradient(160deg,#c8b6ff,#8b5cf6)", cIcon("jogos", 24)] };
+function renderCertificados() {
+  const p = S.profile;
+  app.innerHTML = `<div class="page"><h1 style="font-size:22px">Minhas conquistas</h1><p class="small muted" style="margin:4px 0 0;font-weight:700">${S.certs.length} certificado${S.certs.length === 1 ? "" : "s"} · ${S.badges.length} medalha${S.badges.length === 1 ? "" : "s"}</p>
+    <div style="display:flex;flex-direction:column;gap:14px;margin-top:16px">${S.certs.map(c => `<div class="cert"><div class="in">
+      <img src="../assets/logo.png" alt="Hall School" style="width:46px;margin:0 auto">
+      <div class="small" style="font-weight:800;letter-spacing:2px;color:#a2700a;margin-top:8px">CERTIFICADO DE CONCLUSÃO</div>
+      <h2 style="font-size:19px;margin-top:8px">${esc(c.titulo)}</h2>
+      <div class="small" style="color:#7a5a12;margin-top:6px">${esc(p.nome)} · ${c.horas} horas · ${new Date(c.emitido_em + "T12:00").toLocaleDateString("pt-BR")}</div>
+      <div style="display:flex;justify-content:center;gap:8px;margin-top:14px;flex-wrap:wrap">
+        <button class="pill" data-dl="${c.id}" style="background:#fff;color:var(--ink)"><span style="width:16px;height:16px">${ic("down")}</span>Baixar</button>
+        <button class="pill" data-sh="${c.id}" style="background:var(--ink);color:#fff"><span style="width:16px;height:16px">${ic("share")}</span>Compartilhar</button></div></div></div>`).join("") || `<div class="card" style="padding:20px;text-align:center">Conclua um curso para ganhar seu primeiro certificado.</div>`}</div>
+    <div class="sec-t"><h2>Cursos em andamento</h2></div>
+    <div style="display:flex;flex-direction:column;gap:8px">${S.enroll.filter(e => e.progresso < 100).map(e => { const c = C(e.curso); return `<div class="card row" style="padding:12px 14px"><span class="ic" style="background:${c.bg};color:${c.cor}">${cIcon(c.id)}</span><div style="flex:1"><div style="font-weight:800;font-size:14.5px">${esc(c.nome)}</div><div class="prog" style="margin-top:8px"><b style="width:${e.progresso}%"></b></div></div><span class="small" style="font-weight:800;color:var(--dim)">${e.progresso}%</span></div>`; }).join("")}</div>
+    <div class="sec-t"><h2>Medalhas</h2></div>
+    <div class="cgrid">${S.badges.map(b => { const [bg, inner] = MEDAL[b.tipo] || MEDAL.code; return `<div class="card" style="padding:12px 6px;text-align:center"><div class="medal" style="background:${bg}">${inner}</div><div class="small" style="font-weight:800;margin-top:6px">${esc(b.nome)}</div></div>`; }).join("")}</div></div>`;
+  $$("[data-dl]").forEach(b => b.onclick = () => downloadCert(S.certs.find(c => c.id === b.dataset.dl)));
+  $$("[data-sh]").forEach(b => b.onclick = async () => {
+    const c = S.certs.find(x => x.id === b.dataset.sh);
+    const text = `${p.nome} concluiu "${c.titulo}" (${c.horas}h) na Hall School!`;
+    try { if (navigator.share) { await navigator.share({ title: "Certificado Hall School", text, url: location.origin }); return; } } catch (_) { return; }
+    try { await navigator.clipboard.writeText(text + " " + location.origin); toast("Texto copiado para compartilhar"); } catch (_) { toast(text); }
+  });
+}
+function downloadCert(c) {
+  const W = 1600, H = 1130, cv = document.createElement("canvas"); cv.width = W; cv.height = H; const x = cv.getContext("2d");
+  const g = x.createLinearGradient(0, 0, W, H); g.addColorStop(0, "#fff7e0"); g.addColorStop(1, "#ffe1a0"); x.fillStyle = g; x.fillRect(0, 0, W, H);
+  x.setLineDash([18, 12]); x.strokeStyle = "rgba(170,110,0,.5)"; x.lineWidth = 5; x.strokeRect(60, 60, W - 120, H - 120); x.setLineDash([]);
+  x.textAlign = "center"; x.fillStyle = "#a2700a"; x.font = "800 34px Manrope, sans-serif"; x.fillText("CERTIFICADO DE CONCLUSÃO", W / 2, 330);
+  x.fillStyle = "#141b3a"; x.font = "800 84px Unbounded, sans-serif"; x.fillText(c.titulo, W / 2, 470);
+  x.font = "600 38px Manrope, sans-serif"; x.fillStyle = "#5a4a20"; x.fillText("Certificamos que", W / 2, 580);
+  x.font = "800 64px Unbounded, sans-serif"; x.fillStyle = "#2f6fff"; x.fillText(S.profile.nome, W / 2, 680);
+  x.font = "600 36px Manrope, sans-serif"; x.fillStyle = "#5a4a20"; x.fillText(`concluiu a formação com carga horária de ${c.horas} horas.`, W / 2, 760);
+  x.fillText(`Hall School · Santo Amaro, São Paulo · ${new Date(c.emitido_em + "T12:00").toLocaleDateString("pt-BR")}`, W / 2, 940);
+  const logo = new Image(); logo.onload = () => { x.drawImage(logo, W / 2 - 80, 110, 160, 160); save(); }; logo.onerror = save; logo.src = "../assets/logo.png";
+  function save() { cv.toBlob(b => { const a = document.createElement("a"); a.href = URL.createObjectURL(b); a.download = `certificado-${c.titulo.toLowerCase().replace(/\s+/g, "-")}.png`; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 2000); toast("Certificado baixado"); }); }
+}
+
+/* ---------- Conta ---------- */
+function qrSVG(text) { const q = qrcode(0, "M"); q.addData(text); q.make(); return q.createSvgTag({ cellSize: 3, margin: 0, scalable: true }); }
+function renderConta() {
+  const p = S.profile; const famURL = `${BASE}#familia/${p.codigo_familia}`;
+  const notify = S.guardians.length ? S.guardians.every(g => g.notificar) : true;
+  app.innerHTML = `<div class="page">
+    <div style="text-align:center;padding-top:6px">${avatarCircle(p.avatar, 100)}
+      <h1 style="font-size:20px;margin-top:12px">${esc(p.nome)}</h1><div class="small muted" style="font-weight:700;margin-top:2px">${esc(p.idade || "")} anos · Unidade ${esc(p.unidade)}</div>
+      <a href="#avatar" class="pill" style="background:#e8efff;color:var(--blue);margin-top:10px;text-decoration:none">Editar avatar</a></div>
+    <div class="fam" style="margin-top:18px">
+      <div class="row" style="gap:10px"><span style="width:26px;height:26px;color:#9fd8ff">${ic("family")}</span><h2 style="font-size:16px">Compartilhar com os pais</h2></div>
+      <p class="small" style="opacity:.88;margin:8px 0 0;line-height:1.45">Seus responsáveis acompanham aulas, tarefas e certificados. Mostre o QR code ou envie o código.</p>
+      <div class="row" style="margin-top:12px"><div style="flex:1;background:rgba(255,255,255,.14);border-radius:14px;padding:10px 12px"><div class="small" style="opacity:.8;font-weight:800;letter-spacing:1px">CÓDIGO FAMÍLIA</div><div style="font:800 21px var(--font-d);letter-spacing:3px;margin-top:2px">${esc(p.codigo_familia)}</div></div><div class="qr" aria-label="QR code da área dos pais">${qrSVG(famURL)}</div></div>
+      <button class="btn ghost" id="sharefam" style="height:46px;margin-top:12px;font-size:14.5px"><span style="width:18px;height:18px">${ic("share")}</span>Enviar link para os pais</button>
+    </div>
+    <div class="card" style="margin-top:14px;padding:4px 14px">
+      ${S.guardians.map(g => `<div class="row" style="padding:12px 0;border-bottom:1px solid var(--line)"><span style="width:38px;height:38px;border-radius:50%;background:#ffe9ef;display:grid;place-items:center;font-weight:900;color:#e0446b">${esc(g.nome[0] || "?").toUpperCase()}</span><div style="flex:1;min-width:0"><div style="font-weight:800;font-size:14px">${esc(g.nome)}${g.parentesco ? ` (${esc(g.parentesco)})` : ""}</div><div class="small" style="font-weight:800;color:${g.status === "conectado" ? "var(--green)" : "var(--orange)"}">${g.status === "conectado" ? "Conectado" : "Convite enviado"}</div></div><button class="small muted" data-rm="${g.id}" style="font-weight:700">Remover</button></div>`).join("")}
+      <button class="row" id="invite" style="padding:12px 0;width:100%;border-bottom:1px solid var(--line);text-align:left"><span style="width:38px;height:38px;border-radius:50%;background:var(--soft);display:grid;place-items:center;color:var(--blue)"><span style="width:20px;height:20px">${ic("plus", 3)}</span></span><span style="font-weight:800;font-size:14px">Convidar responsável</span></button>
+      <div class="row" style="padding:12px 0"><div style="flex:1;font-weight:700;font-size:14px">Avisar os pais quando concluir tarefas</div><button class="switch" role="switch" id="notif" aria-checked="${notify}" aria-label="Avisar os pais"></button></div>
+    </div>
+    <button class="btn ghost" id="out" style="margin-top:16px;color:#d93652"><span style="width:20px;height:20px">${ic("out")}</span>Sair da conta</button>
+  </div>`;
+  $("#sharefam").onclick = async () => {
+    const text = `Acompanhe ${p.nome.split(" ")[0]} na Hall School. Código família: ${p.codigo_familia}`;
+    try { if (navigator.share) { await navigator.share({ title: "Hall School · Família", text, url: famURL }); return; } } catch (_) { return; }
+    try { await navigator.clipboard.writeText(`${text}\n${famURL}`); toast("Link copiado"); } catch (_) { toast(famURL); }
+  };
+  $("#notif").onclick = async e => {
+    const v = e.currentTarget.getAttribute("aria-checked") !== "true"; e.currentTarget.setAttribute("aria-checked", String(v));
+    if (S.guardians.length) { await sb.from("hs_guardians").update({ notificar: v }).eq("student_id", p.id); S.guardians.forEach(g => g.notificar = v); }
+    toast(v ? "Avisos ligados" : "Avisos desligados");
+  };
+  $$("[data-rm]").forEach(b => b.onclick = async () => { const { error } = await sb.from("hs_guardians").delete().eq("id", b.dataset.rm); if (!error) { S.guardians = S.guardians.filter(g => g.id !== b.dataset.rm); renderConta(); } });
+  $("#invite").onclick = () => {
+    const m = document.createElement("div"); m.className = "modal";
+    m.innerHTML = `<form class="sheet" role="dialog" aria-modal="true" aria-label="Convidar responsável"><h2 style="font-size:18px">Convidar responsável</h2>
+      <label class="field"><i>${ic("user")}</i><input id="gn" maxlength="80" placeholder="Nome" required></label>
+      <label class="field"><i>${ic("family")}</i><select id="gp"><option>Mãe</option><option>Pai</option><option>Avó</option><option>Avô</option><option>Tia</option><option>Tio</option><option>Outro</option></select></label>
+      <label class="field"><i>${ic("mail")}</i><input id="ge" type="email" maxlength="160" placeholder="E-mail (opcional)"></label>
+      <p class="small muted" style="margin:0">Depois, envie o link ou o código família para essa pessoa.</p>
+      <button class="btn">Adicionar</button><button type="button" class="btn ghost" id="cl">Cancelar</button></form>`;
+    document.body.appendChild(m); $("#gn", m).focus();
+    $("#cl", m).onclick = () => m.remove(); m.onclick = ev => { if (ev.target === m) m.remove(); };
+    $("form", m).onsubmit = async ev => {
+      ev.preventDefault(); const nome = $("#gn", m).value.trim(); if (!nome) return;
+      const { data, error } = await sb.from("hs_guardians").insert({ student_id: p.id, nome, parentesco: $("#gp", m).value, email: $("#ge", m).value.trim() || null }).select().single();
+      if (error) { toast("Não foi possível adicionar."); return; }
+      S.guardians.push(data); m.remove(); toast("Responsável adicionado"); renderConta();
+    };
+  };
+  $("#out").onclick = async () => { await sb.auth.signOut(); S.profile = null; location.hash = "login"; };
+}
+
+/* ---------- Família (pais) ---------- */
+async function renderFamilia(code) {
+  nav.hidden = true;
+  const form = (msg = "") => {
+    app.innerHTML = `<div class="login"><a href="#login" class="row" style="text-decoration:none;color:var(--ink);font-weight:800;gap:4px;width:max-content"><span style="width:22px;height:22px">${ic("back", 2.4)}</span>Voltar</a>
+      <div class="login-top"><img src="../assets/logo.png" alt="Hall School" style="width:64px;margin:0 auto 10px"><h1 style="font-size:26px">Área dos pais</h1><p class="muted" style="margin:8px 0 0;font-weight:700">Digite o código família que aparece no app do seu filho.</p></div>
+      <form class="card login-card" id="f" style="margin-top:22px"><label class="field"><i>${ic("family")}</i><input id="cod" placeholder="HS-0000" maxlength="7" style="text-transform:uppercase;letter-spacing:2px" required></label><p class="err" role="alert">${esc(msg)}</p><button class="btn">Acompanhar</button></form></div>`;
+    $("#f").onsubmit = e => { e.preventDefault(); const v = $("#cod").value.trim().toUpperCase(); if (v) location.hash = "familia/" + v; };
+  };
+  if (!code) return form();
+  app.innerHTML = '<div class="spinner"></div>';
+  const { data, error } = await sb.rpc("hs_family_view", { p_codigo: code });
+  if (error || !data) return form("Código não encontrado. Confira e tente de novo.");
+  const d = data;
+  app.innerHTML = `<div class="page" style="padding-bottom:40px">
+    <div class="between"><a href="#familia" class="small link">Trocar código</a><span class="pill" style="background:#fff;color:var(--muted)">Somente leitura</span></div>
+    <div style="text-align:center;margin-top:10px">${avatarCircle(Object.assign({}, d.avatar || {}, { genero: d.genero }), 96)}<h1 style="font-size:21px;margin-top:12px">${esc(d.nome)}</h1><div class="small muted" style="font-weight:700">${esc(d.idade || "")} anos · Unidade ${esc(d.unidade)}</div>
+      <div style="display:flex;justify-content:center;gap:8px;margin-top:10px"><span class="pill" style="background:#fff3e0;color:#e07b00">🔥 ${d.sequencia} dias</span><span class="pill" style="background:#e8efff;color:var(--blue)">Nível ${level(d.xp)} · ${d.xp} XP</span></div></div>
+    <div class="sec-t"><h2>Cursos</h2></div>
+    <div style="display:flex;flex-direction:column;gap:8px">${(d.cursos || []).map(e => { const c = C(e.curso); return `<div class="card row" style="padding:12px 14px"><span class="ic" style="background:${c.bg};color:${c.cor}">${cIcon(c.id)}</span><div style="flex:1;min-width:0"><div style="font-weight:800;font-size:14.5px">${esc(c.nome)}</div><div class="small muted">Módulo ${e.modulo} · ${esc(e.aula || "")}</div><div class="prog" style="margin-top:8px"><b style="width:${e.progresso}%"></b></div></div><span class="small" style="font-weight:800;color:var(--dim)">${e.progresso}%</span></div>`; }).join("") || '<p class="muted">Nenhum curso ainda.</p>'}</div>
+    <div class="sec-t"><h2>Tarefas concluídas</h2></div>
+    <div style="display:flex;flex-direction:column;gap:8px">${(d.tarefas || []).map(t => `<div class="card task done"><span class="chk on"><span style="width:15px;height:15px">${ic("check", 3.5)}</span></span><div class="t" style="flex:1;font-size:14px;font-weight:700">${esc(t.titulo)}</div><span class="xp">+${t.xp} XP</span></div>`).join("") || '<p class="muted">Nenhuma tarefa concluída ainda.</p>'}</div>
+    <div class="sec-t"><h2>Certificados</h2></div>
+    <div style="display:flex;flex-direction:column;gap:8px">${(d.certificados || []).map(c => `<div class="card row" style="padding:14px;background:linear-gradient(160deg,#fff7e0,#ffe7b0)"><span style="width:28px;height:28px;color:#a2700a">${ic("award")}</span><div><div style="font-weight:800">${esc(c.titulo)}</div><div class="small" style="color:#7a5a12">${c.horas} horas · ${new Date(c.emitido_em + "T12:00").toLocaleDateString("pt-BR")}</div></div></div>`).join("") || '<p class="muted">Nenhum certificado ainda.</p>'}</div>
+  </div>`;
+}
+
+/* ---------- Boot ---------- */
+sb.auth.onAuthStateChange((evt, session) => {
+  const had = !!S.session; S.session = session;
+  if (!session) { S.profile = null; }
+  if (evt === "SIGNED_IN" && !had) route();
+  if (evt === "SIGNED_OUT") route();
+});
+window.addEventListener("hashchange", route);
+sb.auth.getSession().then(({ data }) => { S.session = data.session; route(); });
+if ("serviceWorker" in navigator) { /* PWA install works via manifest; no offline worker needed */ }
+})();
+</script>
+</body>
+</html>
