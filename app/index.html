@@ -67,11 +67,11 @@ h1,h2,h3{font-family:var(--font-d);margin:0;line-height:1.1}
 .cloud{position:absolute;background:#fff;border-radius:40px;opacity:.9}
 .login-top{text-align:center;margin-top:18px}
 .login-top h1{font-size:30px;font-weight:900;color:#2f3a8a}
-.toggle{display:flex;justify-content:center;gap:10px;margin-top:16px}
+.toggle{position:relative;z-index:3;display:flex;justify-content:center;gap:10px;margin-top:16px}
 .toggle button{display:flex;align-items:center;gap:8px;padding:6px 14px 6px 6px;border-radius:999px;background:#fff;color:var(--muted);font-weight:800;font-size:13.5px;box-shadow:0 6px 16px -10px rgba(40,50,140,.4);transition:background .2s,color .2s}
 .toggle button[aria-pressed="true"]{background:var(--blue);color:#fff}
 .toggle .face{width:34px;height:34px;border-radius:50%;overflow:hidden;background:#dfe7ff}
-.peek{position:relative;height:190px;display:flex;justify-content:center;align-items:flex-end;margin-top:6px;z-index:1}
+.peek{pointer-events:none;position:relative;height:190px;display:flex;justify-content:center;align-items:flex-end;margin-top:6px;z-index:1}
 .peek img,.peek svg{height:205px;width:auto;margin-bottom:-24px}
 .login-card{position:relative;z-index:2;padding:22px 18px;border-radius:30px;display:flex;flex-direction:column;gap:12px}
 .social{display:flex;justify-content:center;gap:16px}
@@ -306,10 +306,12 @@ async function route() {
   const h = location.hash.slice(1) || "inicio";
   const [r, arg] = h.split("/");
   if (r === "familia") return renderFamilia(arg);
-  if (!S.session) { nav.hidden = true; return r === "cadastro" ? renderCadastro() : renderLogin(); }
+  if (r === "nova-senha" || S.recovery) return renderNovaSenha();
+  if (!S.session) { nav.hidden = true; return r === "cadastro" ? renderCadastro() : r === "recuperar" ? renderRecuperar() : renderLogin(); }
   if (!S.profile) { app.innerHTML = '<div class="spinner"></div>'; try { await ensureProfile(); } catch (e) { console.error(e); app.innerHTML = `<div class="page"><h2>Não conseguimos abrir sua conta</h2><p class="muted">${esc(e.message)}</p><button class="btn" id="retry">Tentar de novo</button></div>`; $("#retry").onclick = () => location.reload(); return; } }
   if (!S.profile.avatar && r !== "avatar") return go("avatar");
   if (r === "avatar") { nav.hidden = true; return renderAvatar(); }
+  if (r === "escola") { renderNav("conta"); return renderEscola(); }
   const view = {inicio: renderInicio, cursos: renderCursos, tarefas: renderTarefas, certificados: renderCertificados, conta: renderConta}[r] || renderInicio;
   renderNav(MAIN.includes(r) ? r : "inicio");
   view(arg);
@@ -342,11 +344,11 @@ function renderLogin() {
     <form class="card login-card" id="f" novalidate>
       <label class="field"><i>${ic("mail")}</i><input id="email" type="email" autocomplete="email" placeholder="E-mail" required></label>
       <label class="field"><i>${ic("lock")}</i><input id="senha" type="password" autocomplete="current-password" placeholder="Senha" required></label>
-      <button type="button" class="link small" id="forgot" style="align-self:flex-end;margin-top:-4px">Esqueci a senha</button>
+      <a href="#recuperar" class="link small" style="align-self:flex-end;margin-top:-4px;text-decoration:none">Esqueci minha senha</a>
       <p class="err" id="err" role="alert"></p>
       <button class="btn" id="go">Entrar</button>
-      <p class="small muted" style="text-align:center;margin:2px 0 0;font-weight:700">ou continue com</p>
-      <div class="social"><button type="button" id="google" aria-label="Entrar com Google" style="color:#ea4335">G</button></div>
+      <p class="small muted" id="orwith" style="text-align:center;margin:2px 0 0;font-weight:700" hidden>ou continue com</p>
+      <div class="social" id="social" hidden><button type="button" id="google" aria-label="Entrar com Google" style="color:#ea4335">G</button></div>
       <p class="small" style="text-align:center;margin:4px 0 0;font-weight:700;color:var(--muted)">Primeira vez aqui? <a class="link" href="#cadastro">Criar conta</a></p>
       <p class="small" style="text-align:center;margin:0;font-weight:700;color:var(--muted)">É responsável? <a class="link" href="#familia">Acompanhar meu filho</a></p>
     </form></div>`;
@@ -355,20 +357,68 @@ function renderLogin() {
     e.preventDefault(); const err = $("#err"); err.textContent = "";
     const email = $("#email").value.trim(), password = $("#senha").value;
     if (!email || !password) { err.textContent = "Preencha e-mail e senha."; return; }
-    $("#go").disabled = true; $("#go").textContent = "Entrando…";
+    const btn = $("#go"); btn.disabled = true; btn.textContent = "Entrando…";
     const { error } = await sb.auth.signInWithPassword({ email, password });
-    $("#go").disabled = false; $("#go").textContent = "Entrar";
+    btn.disabled = false; btn.textContent = "Entrar";
     if (error) err.textContent = /confirm/i.test(error.message) ? "Confirme seu e-mail antes de entrar. Veja sua caixa de entrada." : "E-mail ou senha incorretos.";
   };
   $("#google").onclick = async () => {
     const { error } = await sb.auth.signInWithOAuth({ provider: "google", options: { redirectTo: BASE } });
     if (error) $("#err").textContent = "Login com Google ainda não está disponível. Use e-mail e senha.";
   };
-  $("#forgot").onclick = async () => {
-    const email = $("#email").value.trim(); const err = $("#err");
-    if (!email) { err.textContent = "Digite seu e-mail acima e toque em “Esqueci a senha”."; return; }
-    const { error } = await sb.auth.resetPasswordForEmail(email, { redirectTo: BASE });
-    err.className = error ? "err" : "ok"; err.textContent = error ? "Não foi possível enviar agora. Tente de novo." : "Enviamos um link para redefinir sua senha.";
+  googleEnabled().then(on => { if (on) { $("#social").hidden = false; $("#orwith").hidden = false; } });
+}
+let _google = null;
+function googleEnabled() {
+  if (_google) return _google;
+  _google = fetch("https://hmnhcinkmfwtutkbxejb.supabase.co/auth/v1/settings", { headers: { apikey: "sb_publishable_U-B2cBm468M1lHoGZIzSnA_lmBsWe1S" } })
+    .then(r => r.json()).then(d => !!(d.external && d.external.google)).catch(() => false);
+  return _google;
+}
+function renderRecuperar() {
+  app.innerHTML = `<div class="login">
+    <a href="#login" class="row" style="text-decoration:none;color:var(--ink);font-weight:800;gap:4px;width:max-content"><span style="width:22px;height:22px">${ic("back", 2.4)}</span>Voltar</a>
+    <div class="login-top"><h1 style="font-size:26px">Recuperar senha</h1><p class="muted" style="margin:8px 0 0;font-weight:700">Digite o e-mail da sua conta. Enviamos um link para você criar uma senha nova.</p></div>
+    <div class="peek" style="height:170px">${peekHTML()}</div>
+    <form class="card login-card" id="f" novalidate>
+      <label class="field"><i>${ic("mail")}</i><input id="email" type="email" autocomplete="email" placeholder="E-mail da conta" required></label>
+      <p class="err" id="err" role="alert"></p>
+      <button class="btn" id="go">Enviar link</button>
+      <p class="small muted" style="text-align:center;margin:0">Não chegou? Veja a caixa de spam ou fale com a secretaria da Hall School.</p>
+    </form></div>`;
+  $("#f").onsubmit = async e => {
+    e.preventDefault(); const err = $("#err"); err.className = "err"; err.textContent = "";
+    const email = $("#email").value.trim();
+    if (!email) { err.textContent = "Digite seu e-mail."; return; }
+    $("#go").disabled = true; $("#go").textContent = "Enviando…";
+    const { error } = await sb.auth.resetPasswordForEmail(email, { redirectTo: BASE + "#nova-senha" });
+    $("#go").disabled = false; $("#go").textContent = "Enviar link";
+    if (error) { err.textContent = /rate|limit/i.test(error.message) ? "Muitas tentativas. Espere alguns minutos e tente de novo." : "Não foi possível enviar agora. Tente de novo."; return; }
+    err.className = "ok"; err.textContent = "Se esse e-mail tiver conta, o link chega em instantes.";
+  };
+}
+function renderNovaSenha() {
+  nav.hidden = true;
+  app.innerHTML = `<div class="login">
+    <div class="login-top"><h1 style="font-size:26px">Criar senha nova</h1><p class="muted" style="margin:8px 0 0;font-weight:700">Escolha uma senha com 6 caracteres ou mais.</p></div>
+    <div class="peek" style="height:170px">${peekHTML()}</div>
+    <form class="card login-card" id="f" novalidate>
+      <label class="field"><i>${ic("lock")}</i><input id="s1" type="password" autocomplete="new-password" placeholder="Nova senha" minlength="6" required></label>
+      <label class="field"><i>${ic("lock")}</i><input id="s2" type="password" autocomplete="new-password" placeholder="Repita a nova senha" minlength="6" required></label>
+      <p class="err" id="err" role="alert"></p>
+      <button class="btn" id="go">Salvar senha</button>
+    </form></div>`;
+  $("#f").onsubmit = async e => {
+    e.preventDefault(); const err = $("#err"); err.textContent = "";
+    const a = $("#s1").value, b = $("#s2").value;
+    if (a.length < 6) { err.textContent = "A senha precisa ter 6 caracteres ou mais."; return; }
+    if (a !== b) { err.textContent = "As duas senhas estão diferentes."; return; }
+    if (!S.session) { err.textContent = "O link expirou. Peça um novo em “Esqueci minha senha”."; return; }
+    $("#go").disabled = true;
+    const { error } = await sb.auth.updateUser({ password: a });
+    $("#go").disabled = false;
+    if (error) { err.textContent = "Não foi possível salvar: " + error.message; return; }
+    S.recovery = false; toast("Senha alterada!"); go("inicio");
   };
 }
 function renderCadastro() {
@@ -388,13 +438,23 @@ function renderCadastro() {
   bindToggle(app);
   $("#f").onsubmit = async e => {
     e.preventDefault(); const err = $("#err"); err.className = "err"; err.textContent = "";
+    const btn = $("#go");
     const nome = $("#nome").value.trim(), idade = $("#idade").value, email = $("#email").value.trim(), password = $("#senha").value;
     if (!nome || !idade || !email || password.length < 6) { err.textContent = "Preencha nome, idade, e-mail e uma senha com 6 caracteres ou mais."; return; }
-    $("#go").disabled = true; $("#go").textContent = "Criando…";
-    const { data, error } = await sb.auth.signUp({ email, password, options: { data: { nome, idade, genero: S.loginGender }, emailRedirectTo: BASE } });
-    $("#go").disabled = false; $("#go").textContent = "Criar minha conta";
-    if (error) { err.textContent = /registered|exists/i.test(error.message) ? "Este e-mail já tem conta. Volte e faça login." : "Não foi possível criar a conta: " + error.message; return; }
-    if (!data.session) { err.className = "ok"; err.textContent = "Conta criada! Enviamos um e-mail de confirmação. Confirme e depois faça login."; }
+    btn.disabled = true; btn.textContent = "Criando…";
+    let res;
+    try {
+      const r = await fetch("https://hmnhcinkmfwtutkbxejb.supabase.co/functions/v1/hs-signup", { method: "POST", headers: { "Content-Type": "application/json", apikey: "sb_publishable_U-B2cBm468M1lHoGZIzSnA_lmBsWe1S" }, body: JSON.stringify({ nome, idade, email, password, genero: S.loginGender }) });
+      res = await r.json();
+    } catch (_) { res = { error: "rede" }; }
+    if (res.error) {
+      btn.disabled = false; btn.textContent = "Criar minha conta";
+      err.textContent = ({ email_existente: "Este e-mail já tem conta. Volte e faça login.", email_invalido: "Confira o e-mail.", senha_curta: "A senha precisa ter 6 caracteres ou mais.", rede: "Sem conexão. Tente de novo." })[res.error] || "Não foi possível criar a conta agora. Tente de novo.";
+      return;
+    }
+    const { error } = await sb.auth.signInWithPassword({ email, password });
+    btn.disabled = false; btn.textContent = "Criar minha conta";
+    if (error) { err.className = "ok"; err.textContent = "Conta criada! Volte e faça login."; }
   };
 }
 
@@ -617,6 +677,7 @@ function renderConta() {
       <button class="row" id="invite" style="padding:12px 0;width:100%;border-bottom:1px solid var(--line);text-align:left"><span style="width:38px;height:38px;border-radius:50%;background:var(--soft);display:grid;place-items:center;color:var(--blue)"><span style="width:20px;height:20px">${ic("plus", 3)}</span></span><span style="font-weight:800;font-size:14px">Convidar responsável</span></button>
       <div class="row" style="padding:12px 0"><div style="flex:1;font-weight:700;font-size:14px">Avisar os pais quando concluir tarefas</div><button class="switch" role="switch" id="notif" aria-checked="${notify}" aria-label="Avisar os pais"></button></div>
     </div>
+    <div id="adminbox"></div>
     <button class="btn ghost" id="out" style="margin-top:16px;color:#d93652"><span style="width:20px;height:20px">${ic("out")}</span>Sair da conta</button>
   </div>`;
   $("#sharefam").onclick = async () => {
@@ -647,7 +708,58 @@ function renderConta() {
       S.guardians.push(data); m.remove(); toast("Responsável adicionado"); renderConta();
     };
   };
-  $("#out").onclick = async () => { await sb.auth.signOut(); S.profile = null; location.hash = "login"; };
+  $("#out").onclick = async () => { await sb.auth.signOut(); S.profile = null; S.isAdmin = undefined; location.hash = "login"; };
+  checkAdmin().then(ok => { if (ok && $("#adminbox")) $("#adminbox").innerHTML = `<a href="#escola" class="card row" style="margin-top:14px;padding:14px;text-decoration:none;color:inherit;background:linear-gradient(135deg,#fff7e0,#ffe7b0)"><span style="width:26px;height:26px;color:#a2700a">${ic("award")}</span><div style="flex:1"><div style="font-weight:800">Painel da escola</div><div class="small" style="color:#7a5a12">Alunos, progresso, certificados e leads</div></div><span style="width:20px;height:20px;transform:rotate(180deg);color:#a2700a">${ic("back")}</span></a>`; });
+}
+async function checkAdmin() {
+  if (S.isAdmin !== undefined) return S.isAdmin;
+  const { data } = await sb.rpc("is_hallschool_admin"); S.isAdmin = !!data; return S.isAdmin;
+}
+
+/* ---------- Painel da escola (admin) ---------- */
+async function renderEscola() {
+  if (!(await checkAdmin())) return go("conta");
+  app.innerHTML = '<div class="spinner"></div>';
+  const [p, e, c] = await Promise.all([
+    sb.from("hs_profiles").select("*").order("created_at", { ascending: false }),
+    sb.from("hs_enrollments").select("user_id,curso,progresso"),
+    sb.from("hs_certificates").select("user_id,titulo")
+  ]);
+  const alunos = p.data || [], enr = e.data || [], certs = c.data || [];
+  let q = "";
+  const draw = () => {
+    const list = alunos.filter(a => !q || a.nome.toLowerCase().includes(q) || a.codigo_familia.toLowerCase().includes(q));
+    app.innerHTML = `<div class="page">
+      <div class="between"><a href="#conta" class="row link small" style="gap:2px;text-decoration:none"><span style="width:18px;height:18px">${ic("back", 2.6)}</span>Conta</a><a href="../admin/" class="pill" style="background:#141b3a;color:#fff;text-decoration:none">Leads do site</a></div>
+      <h1 style="font-size:22px;margin-top:12px">Painel da escola</h1>
+      <div class="cgrid" style="margin-top:14px">
+        <div class="card" style="padding:12px;text-align:center"><b style="font:800 22px var(--font-d)">${alunos.length}</b><div class="small muted">alunos</div></div>
+        <div class="card" style="padding:12px;text-align:center"><b style="font:800 22px var(--font-d)">${enr.length}</b><div class="small muted">matrículas</div></div>
+        <div class="card" style="padding:12px;text-align:center"><b style="font:800 22px var(--font-d)">${certs.length}</b><div class="small muted">certificados</div></div>
+      </div>
+      <label class="field" style="margin-top:14px;background:#fff"><i>${ic("user")}</i><input id="q" placeholder="Buscar aluno ou código família" value="${esc(q)}"></label>
+      <div style="display:flex;flex-direction:column;gap:8px;margin-top:12px">${list.map(a => { const mine = enr.filter(x => x.user_id === a.id); const nc = certs.filter(x => x.user_id === a.id).length; return `<div class="card" style="padding:12px 14px">
+        <div class="row">${avatarCircle(Object.assign({}, a.avatar || {}, { genero: a.genero }), 44, false)}<div style="flex:1;min-width:0"><div style="font-weight:800">${esc(a.nome)}</div><div class="small muted">${esc(a.idade || "")} anos · Nv. ${level(a.xp)} · ${a.xp} XP · <span style="white-space:nowrap">${esc(a.codigo_familia)}</span></div></div><button class="pill" data-cert="${a.id}" style="background:#fff3dc;color:#a2700a">+ Certificado</button></div>
+        <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:10px">${mine.map(m => `<span class="pill" style="background:${C(m.curso).bg};color:${C(m.curso).cor};padding:5px 10px;font-size:12px">${esc(C(m.curso).nome)} ${m.progresso}%</span>`).join("") || '<span class="small muted">Sem cursos</span>'}${nc ? `<span class="pill" style="background:#fff7e0;color:#a2700a;padding:5px 10px;font-size:12px">${nc} certificado${nc > 1 ? "s" : ""}</span>` : ""}</div></div>`; }).join("") || '<div class="card" style="padding:20px;text-align:center">Nenhum aluno encontrado.</div>'}</div></div>`;
+    const qi = $("#q"); qi.oninput = () => { q = qi.value.trim().toLowerCase(); const pos = qi.selectionStart; draw(); const n = $("#q"); n.focus(); n.setSelectionRange(pos, pos); };
+    $$("[data-cert]").forEach(b => b.onclick = () => issueCert(alunos.find(a => a.id === b.dataset.cert), row => { certs.push(row); draw(); }));
+  };
+  draw();
+}
+function issueCert(aluno, done) {
+  const m = document.createElement("div"); m.className = "modal";
+  m.innerHTML = `<form class="sheet" role="dialog" aria-modal="true" aria-label="Emitir certificado"><h2 style="font-size:18px">Certificado para ${esc(aluno.nome)}</h2>
+    <label class="field"><i>${ic("award")}</i><select id="ct">${COURSES.map(c => `<option>${esc(c.nome)}</option>`).join("")}<option>Academia Digital</option></select></label>
+    <label class="field"><i>${ic("tasks")}</i><input id="ch" type="number" min="1" max="2000" value="40" placeholder="Carga horária"></label>
+    <button class="btn">Emitir certificado</button><button type="button" class="btn ghost" id="cl">Cancelar</button></form>`;
+  document.body.appendChild(m);
+  $("#cl", m).onclick = () => m.remove(); m.onclick = ev => { if (ev.target === m) m.remove(); };
+  $("form", m).onsubmit = async ev => {
+    ev.preventDefault();
+    const { data, error } = await sb.from("hs_certificates").insert({ user_id: aluno.id, titulo: $("#ct", m).value, horas: parseInt($("#ch", m).value) || 0 }).select("user_id,titulo").single();
+    if (error) { toast("Não foi possível emitir."); return; }
+    m.remove(); toast("Certificado emitido"); done(data);
+  };
 }
 
 /* ---------- Família (pais) ---------- */
@@ -680,6 +792,7 @@ async function renderFamilia(code) {
 /* ---------- Boot ---------- */
 sb.auth.onAuthStateChange((evt, session) => {
   const had = !!S.session; S.session = session;
+  if (evt === "PASSWORD_RECOVERY") { S.recovery = true; location.hash = "nova-senha"; return renderNovaSenha(); }
   if (!session) { S.profile = null; }
   if (evt === "SIGNED_IN" && !had) route();
   if (evt === "SIGNED_OUT") route();
